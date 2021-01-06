@@ -17,13 +17,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-public class Controller {
-    public static final int ELEVATOR_FIRST_FLOOR_MOVE_DURATION = 3000;
-    public static final int ELEVATOR_LAST_FLOOR_MOVE_DURATION = 2250;
-    public static final int ELEVATOR_OTHER_FLOOR_MOVE_DURATION = 1500;
+public class ElevatorsScene {
+    public static final int ELEVATOR_FIRST_FLOOR_MOVE_DURATION = 2000;
+    public static final int ELEVATOR_LAST_FLOOR_MOVE_DURATION = 2000;
+    public static final int ELEVATOR_OTHER_FLOOR_MOVE_DURATION = 2000;
+//    public static final int ELEVATOR_LAST_FLOOR_MOVE_DURATION = 1800;
+//    public static final int ELEVATOR_OTHER_FLOOR_MOVE_DURATION = 1500;
 
     public static final int ELEVATOR_LEFT_MARGIN = 80;
-
 
     @FXML
     private ResourceBundle resources;
@@ -42,12 +43,20 @@ public class Controller {
     void initialize() {
         initializeElevators();
 
-//        planElevatorMove(3, elevators.get(0));
-//        planElevatorMove(2, elevators.get(1));
+        planElevatorMove(2, elevators.get(0));
+        planElevatorMove(1, elevators.get(0));
+        planElevatorMove(2, elevators.get(0));
+
+        planElevatorMove(2, elevators.get(1));
+        planElevatorMove(1, elevators.get(1));
+        planElevatorMove(3, elevators.get(1));
+
         planElevatorMove(3, elevators.get(2));
         planElevatorMove(1, elevators.get(2));
         planElevatorMove(2, elevators.get(2));
 
+        executeElevatorMove(elevators.get(0), false);
+        executeElevatorMove(elevators.get(1), false);
         executeElevatorMove(elevators.get(2), true);
 
 //        goToFloor(3, elevators.get(2));
@@ -155,8 +164,10 @@ public class Controller {
 
                 if (i == 0)
                     step.setDuration(ELEVATOR_FIRST_FLOOR_MOVE_DURATION);
-                else if (i == difference - 1)
+                else if (i == difference - 1) {
                     step.setDuration(ELEVATOR_LAST_FLOOR_MOVE_DURATION);
+                    step.setIsDestination(true);
+                }
                 else
                     step.setDuration(ELEVATOR_OTHER_FLOOR_MOVE_DURATION);
 
@@ -181,41 +192,65 @@ public class Controller {
             }
             elevatorView.getSteps().addAll(steps);
         }
-
     }
 
-    public boolean executeElevatorMove(ElevatorView elevatorView, boolean isFirst) {
+    public boolean executeElevatorMove(ElevatorView elevatorView, boolean isOwnership) {
         if (elevatorView.getSteps().isEmpty())
             return false;
 
         Path path = new Path();
-        if (isFirst) {
-            path.getElements().add(new MoveTo(elevatorView.getSteps().get(0).getBeg().getX(), elevatorView.getSteps().get(0).getBeg().getY()));
-            path.getElements().add(new LineTo(elevatorView.getSteps().get(0).getEnd().getX(), elevatorView.getSteps().get(0).getEnd().getY()));
+        int duration = 0;
+        Step first = elevatorView.getSteps().get(0);
+        if (isOwnership) {
+            Step last = elevatorView.getSteps().get(0);
+
+            for (int i = 0; i < elevatorView.getSteps().size(); i++) {
+                last = elevatorView.getSteps().get(i);
+                duration += last.getDuration();
+
+                if (last.isDestination())
+                    break;
+            }
+
+            path.getElements().add(new MoveTo(first.getBeg().getX(), first.getBeg().getY()));
+            path.getElements().add(new LineTo(last.getEnd().getX(), last.getEnd().getY()));
         } else {
-            path.getElements().add(new MoveTo(elevatorView.getSteps().get(0).getBeg().getX(), elevatorView.getSteps().get(0).getBeg().getY()));
-            path.getElements().add(new LineTo(elevatorView.getSteps().get(0).getEnd().getX(), elevatorView.getSteps().get(0).getEnd().getY()));
+            duration += first.getDuration();
+
+            path.getElements().add(new MoveTo(first.getBeg().getX(), first.getBeg().getY()));
+            path.getElements().add(new LineTo(first.getEnd().getX(), first.getEnd().getY()));
         }
 
         PathTransition pathTransition = new PathTransition();
-        pathTransition.setDuration(Duration.millis(elevatorView.getSteps().get(0).getDuration()));
+        pathTransition.setDuration(Duration.millis(duration));
         pathTransition.setPath(path);
         pathTransition.setNode(elevatorView.getRectangle());
-
 
         pathTransition.setOnFinished(actionEvent -> {
             if (elevatorView.getSteps().size() == 0)
                 return;
 
-            int increment = 1;
-            if (elevatorView.getSteps().get(0).getEnd().getY() > elevatorView.getSteps().get(0).getEnd().getY())
-                increment = -1;
-            elevatorView.getElevator().setFloor(elevatorView.getElevator().getFloor() + increment);
+            Step f = elevatorView.getSteps().get(0);
+            if (isOwnership) {
+                Step l = elevatorView.getSteps().get(0);
 
-            // removing executing step due to be able to make next one
-            elevatorView.getSteps().remove(0);
+                for (int i = 0; i < elevatorView.getSteps().size(); i++) {
+                    l = elevatorView.getSteps().get(0);
+                    elevatorView.getSteps().remove(0);
 
-            executeElevatorMove(elevatorView, false);
+                    if (l.isDestination())
+                        break;
+                }
+
+                // TODO: notify floor change
+                elevatorView.getElevator().setFloor(l.getFloor());
+            } else {
+                // TODO: notify floor change
+                elevatorView.getElevator().setFloor(f.getFloor());
+                elevatorView.getSteps().remove(0);
+            }
+
+            executeElevatorMove(elevatorView, isOwnership);
         });
         pathTransition.play();
 
