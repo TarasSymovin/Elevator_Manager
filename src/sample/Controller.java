@@ -44,9 +44,11 @@ public class Controller {
 
 //        planElevatorMove(3, elevators.get(0));
 //        planElevatorMove(2, elevators.get(1));
-//        planElevatorMove(3, elevators.get(2));
+        planElevatorMove(3, elevators.get(2));
+        planElevatorMove(1, elevators.get(2));
+        planElevatorMove(2, elevators.get(2));
 
-//        executeElevatorMove(elevators.get(2), true);
+        executeElevatorMove(elevators.get(2), true);
 
 //        goToFloor(3, elevators.get(2));
 //        goToFloor(1, elevators.get(2));
@@ -91,11 +93,26 @@ public class Controller {
     }
 
     public void goToFloor(int floor, ElevatorView elevator) {
-        elevator.getPath().getElements().add(new MoveTo(elevator.getRectangle().getX() + elevators.size() * 25 - 25, elevator.getRectangle().getY() + elevator.getRectangle().getHeight() / 2));
-        elevator.getPath().getElements().add(new LineTo(elevator.getRectangle().getX() + elevators.size() * 25 - 25, ((floorCount - floor) * elevator.getRectangle().getHeight()) + elevator.getRectangle().getHeight() / 2));
+        elevator.getPath().getElements().add(new MoveTo(elevator.getRectangle().getX() + elevators.size() * ELEVATOR_LEFT_MARGIN - ELEVATOR_LEFT_MARGIN, elevator.getRectangle().getY() + elevator.getRectangle().getHeight() / 2));
+        elevator.getPath().getElements().add(new LineTo(elevator.getRectangle().getX() + elevators.size() * ELEVATOR_LEFT_MARGIN - ELEVATOR_LEFT_MARGIN, ((floorCount - floor) * elevator.getRectangle().getHeight()) + elevator.getRectangle().getHeight() / 2));
 
         elevator.getRectangle().setX(elevator.getRectangle().getX());
         elevator.getRectangle().setY((floorCount - floor) * elevator.getRectangle().getHeight());
+
+        PathTransition pathTransition = new PathTransition();
+
+        pathTransition.setDuration(Duration.millis(5000));
+        pathTransition.setNode(elevator.getRectangle());
+        pathTransition.setPath(elevator.getPath());
+        pathTransition.play();
+    }
+
+    public void moveElevator(int newFloor, ElevatorView elevator) {
+        elevator.getPath().getElements().add(new MoveTo(elevator.getRectangle().getX() + elevators.size() * ELEVATOR_LEFT_MARGIN - ELEVATOR_LEFT_MARGIN, elevator.getRectangle().getY() + elevator.getRectangle().getHeight() / 2));
+        elevator.getPath().getElements().add(new LineTo(elevator.getRectangle().getX() + elevators.size() * ELEVATOR_LEFT_MARGIN - ELEVATOR_LEFT_MARGIN, ((floorCount - newFloor) * elevator.getRectangle().getHeight()) + elevator.getRectangle().getHeight() / 2));
+
+        elevator.getRectangle().setX(elevator.getRectangle().getX());
+        elevator.getRectangle().setY((floorCount - newFloor) * elevator.getRectangle().getHeight());
 
         PathTransition pathTransition = new PathTransition();
 
@@ -112,12 +129,12 @@ public class Controller {
             double x = step.getEnd().getX() - elevatorView.getRectangle().getWidth() / 2;
             double y = step.getEnd().getY() - elevatorView.getRectangle().getHeight() / 2;
 
-            oldFloor = floorCount - ((int) y / ElevatorView.HEIGHT);
+            oldFloor = step.getFloor();
         } else {
             double x = elevatorView.getRectangle().getX();
             double y = elevatorView.getRectangle().getY();
 
-            oldFloor = floorCount - ((int) y / ElevatorView.HEIGHT);
+            oldFloor = elevatorView.getElevator().getFloor();
         }
 
         // TODO: split on strategies
@@ -134,6 +151,7 @@ public class Controller {
             double x = 0, y = 0;
             for (int i = 0; i < difference; i++) {
                 Step step = new Step();
+                step.setFloor(oldFloor + (i + 1) * increment);
 
                 if (i == 0)
                     step.setDuration(ELEVATOR_FIRST_FLOOR_MOVE_DURATION);
@@ -170,15 +188,12 @@ public class Controller {
         if (elevatorView.getSteps().isEmpty())
             return false;
 
-        elevatorView.getRectangle().setX(elevatorView.getSteps().get(0).getEnd().getX() - elevatorView.getRectangle().getWidth() / 2);
-        elevatorView.getRectangle().setY(elevatorView.getSteps().get(0).getEnd().getY() - elevatorView.getRectangle().getHeight() / 2);
-
         Path path = new Path();
         if (isFirst) {
-            path.getElements().add(new MoveTo(elevatorView.getSteps().get(0).getEnd().getX(), elevatorView.getSteps().get(0).getEnd().getY()));
+            path.getElements().add(new MoveTo(elevatorView.getSteps().get(0).getBeg().getX(), elevatorView.getSteps().get(0).getBeg().getY()));
             path.getElements().add(new LineTo(elevatorView.getSteps().get(0).getEnd().getX(), elevatorView.getSteps().get(0).getEnd().getY()));
         } else {
-            path.getElements().add(new MoveTo(elevatorView.getSteps().get(0).getEnd().getX(), elevatorView.getSteps().get(0).getEnd().getY()));
+            path.getElements().add(new MoveTo(elevatorView.getSteps().get(0).getBeg().getX(), elevatorView.getSteps().get(0).getBeg().getY()));
             path.getElements().add(new LineTo(elevatorView.getSteps().get(0).getEnd().getX(), elevatorView.getSteps().get(0).getEnd().getY()));
         }
 
@@ -197,13 +212,10 @@ public class Controller {
                 increment = -1;
             elevatorView.getElevator().setFloor(elevatorView.getElevator().getFloor() + increment);
 
-            elevatorView.getRectangle().setX(elevatorView.getSteps().get(0).getEnd().getX() - elevatorView.getRectangle().getWidth() / 2);
-            elevatorView.getRectangle().setY(elevatorView.getSteps().get(0).getEnd().getY() - elevatorView.getRectangle().getHeight() / 2);
-
             // removing executing step due to be able to make next one
             elevatorView.getSteps().remove(0);
-//
-//            executeElevatorMove(elevatorView, false);
+
+            executeElevatorMove(elevatorView, false);
         });
         pathTransition.play();
 
