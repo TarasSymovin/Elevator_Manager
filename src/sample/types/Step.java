@@ -7,6 +7,8 @@ public class Step {
     private int duration;
     private int floor;
 
+    private boolean isDestination = false;
+
     public Step() {
         this.beg = new Point2D(0, 0);
         this.end = new Point2D(0, 0);
@@ -50,6 +52,14 @@ public class Step {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public boolean isDestination() {
+        return isDestination;
+    }
+
+    public void setIsDestination(boolean destination) {
+        isDestination = destination;
     }
 
     public int getFloor() {
