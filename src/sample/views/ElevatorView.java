@@ -1,21 +1,30 @@
 package sample.views;
 
-import com.sun.javafx.geom.Rectangle;
 import javafx.scene.shape.Path;
+import javafx.scene.shape.Rectangle;
 import sample.types.Elevator;
+import sample.types.Step;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ElevatorView {
+    public static final int WIDTH = 100;
+    public static final int HEIGHT = 150;
+
     private Rectangle rectangle;
     private Elevator elevator;
     private Path path;
 
-    public ElevatorView(Rectangle rectangle, Elevator elevator) {
-        this.rectangle = rectangle;
-        this.elevator = elevator;
-    }
+    private List<Step> steps = new ArrayList<>();
 
     public ElevatorView() {
         path = new Path();
+    }
+
+    public ElevatorView(Rectangle rectangle, Elevator elevator) {
+        this.rectangle = rectangle;
+        this.elevator = elevator;
     }
 
     public Path getPath() {
@@ -24,6 +33,18 @@ public class ElevatorView {
 
     public void setPath(Path path) {
         this.path = path;
+    }
+
+    public List<Step> getSteps() {
+        return steps;
+    }
+
+    public void setSteps(List<Step> steps) {
+        this.steps = steps;
+    }
+
+    public void addStep(Step step) {
+        this.steps.add(step);
     }
 
     public Rectangle getRectangle() {
@@ -41,4 +62,6 @@ public class ElevatorView {
     public void setElevator(Elevator elevator) {
         this.elevator = elevator;
     }
+
+
 }
