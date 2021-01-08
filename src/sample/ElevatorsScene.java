@@ -4,12 +4,15 @@ import javafx.animation.PathTransition;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
+import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
 import sample.types.Elevator;
 import sample.types.Step;
@@ -38,16 +41,28 @@ public class ElevatorsScene {
     @FXML
     private AnchorPane pane = new AnchorPane();
 
+    private Group elements = new Group();
+
+    private final Image elevatorImage = new Image("sample/images/elevator_image.png");
+    private final Image backgroundFloorImage = new Image("sample/images/floor_background.jpg");
     private final Image backgroundImage = new Image("sample/images/wall_image.jpg");
     private final BackgroundImage background = new BackgroundImage(backgroundImage, null, null, null, null);
 
     private List<ElevatorView> elevators = new ArrayList<>();
-    private int floorCount = 10;
+    private List<Rectangle> floors = new ArrayList<>();
+    private int floorCount = 20;
     private int elevatorCount = 10;
 
     @FXML
     void initialize() {
         initializeElevators();
+        initializeFloors();
+
+        pane.getChildren().add(elements);
+        pane.setBackground(new Background(background));
+        pane.setPrefHeight(floorCount * ElevatorView.HEIGHT);
+        pane.setPrefWidth(elevatorCount * ElevatorView.WIDTH + ELEVATOR_LEFT_MARGIN * elevatorCount + ElevatorView.HEIGHT);
+        pane.getChildren().addAll(initializeFloorNumber());
 
         planElevatorMove(2, elevators.get(0));
         planElevatorMove(1, elevators.get(0));
@@ -72,10 +87,48 @@ public class ElevatorsScene {
 //        goToFloor(1, elevators.get(1));
     }
 
-    public void initializeElevators() {
-        Group group = new Group();
-        pane.getChildren().add(group);
+    public List<Label> initializeFloorNumber(){
+        List<Label> floorNumbers = new ArrayList<>();
 
+        for (int i = 0; i < floorCount; i++){
+            Label label = new Label(String.valueOf(floorCount - i));
+            label.setStyle("-fx-font-size: 52");
+            label.setMaxWidth(ElevatorView.HEIGHT);
+            if ((floorCount - i) < 10)
+                label.setLayoutX(20);
+            else
+                label.setLayoutX(5);
+
+            label.setLayoutY(i * ElevatorView.HEIGHT);
+
+            floorNumbers.add(label);
+        }
+
+        return floorNumbers;
+    }
+
+    public void initializeFloors(){
+        for (int i = 0; i < floorCount; i++){
+            Rectangle rectangle = new Rectangle();
+
+            rectangle.setWidth(ElevatorView.HEIGHT);
+            rectangle.setHeight(ElevatorView.HEIGHT);
+
+            double x = 0;
+            double y = i * ElevatorView.HEIGHT;
+
+            rectangle.setX(x);
+            rectangle.setY(y);
+
+            rectangle.setFill(new ImagePattern(backgroundFloorImage));
+
+            floors.add(rectangle);
+        }
+
+        floors.forEach(x -> elements.getChildren().add(x));
+    }
+
+    public void initializeElevators() {
         for (int i = 0; i < elevatorCount; i++) {
             Rectangle rectangle = new Rectangle();
 
@@ -88,11 +141,13 @@ public class ElevatorsScene {
             rectangle.setArcWidth(10);
 
             // calculating elevator coordinates with margins
-            double x = i * rectangle.getWidth() + (i + 1) * ELEVATOR_LEFT_MARGIN;
+            double x = i * rectangle.getWidth() + (i + 1) * ELEVATOR_LEFT_MARGIN + ElevatorView.HEIGHT;
             double y = (floorCount - 1) * rectangle.getHeight();
 
             rectangle.setX(x);
             rectangle.setY(y);
+
+            rectangle.setFill(new ImagePattern(elevatorImage));
 
             ElevatorView elevatorView = new ElevatorView();
             elevatorView.setElevator(new Elevator(1));
@@ -100,11 +155,7 @@ public class ElevatorsScene {
             elevators.add(elevatorView);
         }
 
-        elevators.forEach(x -> group.getChildren().add(x.getRectangle()));
-
-        pane.setBackground(new Background(background));
-        pane.setPrefHeight(floorCount * ElevatorView.HEIGHT);
-        pane.setPrefWidth(elevatorCount * ElevatorView.WIDTH + ELEVATOR_LEFT_MARGIN * elevatorCount);
+        elevators.forEach(x -> elements.getChildren().add(x.getRectangle()));
     }
 
     public void goToFloor(int floor, ElevatorView elevator) {
