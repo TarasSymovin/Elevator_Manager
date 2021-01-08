@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ElevatorView {
-    public static final int WIDTH = 100;
-    public static final int HEIGHT = 150;
+    public static final int WIDTH = 50;
+    public static final int HEIGHT = 75;
 
     private Rectangle rectangle;
     private Elevator elevator;

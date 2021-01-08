@@ -4,7 +4,10 @@ import javafx.animation.PathTransition;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
 import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
@@ -24,7 +27,7 @@ public class ElevatorsScene {
 //    public static final int ELEVATOR_LAST_FLOOR_MOVE_DURATION = 1800;
 //    public static final int ELEVATOR_OTHER_FLOOR_MOVE_DURATION = 1500;
 
-    public static final int ELEVATOR_LEFT_MARGIN = 80;
+    public static final int ELEVATOR_LEFT_MARGIN = 30;
 
     @FXML
     private ResourceBundle resources;
@@ -35,9 +38,12 @@ public class ElevatorsScene {
     @FXML
     private AnchorPane pane = new AnchorPane();
 
+    private final Image backgroundImage = new Image("sample/images/wall_image.jpg");
+    private final BackgroundImage background = new BackgroundImage(backgroundImage, null, null, null, null);
+
     private List<ElevatorView> elevators = new ArrayList<>();
-    private int floorCount = 3;
-    private int elevatorCount = 3;
+    private int floorCount = 10;
+    private int elevatorCount = 10;
 
     @FXML
     void initialize() {
@@ -96,7 +102,7 @@ public class ElevatorsScene {
 
         elevators.forEach(x -> group.getChildren().add(x.getRectangle()));
 
-        pane.setStyle("-fx-background-color: #94faf0");
+        pane.setBackground(new Background(background));
         pane.setPrefHeight(floorCount * ElevatorView.HEIGHT);
         pane.setPrefWidth(elevatorCount * ElevatorView.WIDTH + ELEVATOR_LEFT_MARGIN * elevatorCount);
     }
