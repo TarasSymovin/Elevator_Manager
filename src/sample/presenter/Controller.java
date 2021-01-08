@@ -1,4 +1,4 @@
-package sample;
+package sample.presenter;
 
 import javafx.animation.PathTransition;
 import javafx.fxml.FXML;
@@ -9,7 +9,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-
+import sample.model.ElevatorView;
 import java.awt.*;
 import java.net.URL;
 import java.util.ArrayList;
@@ -83,47 +83,4 @@ public class Controller {
         pathTransition.setPath(elevator.getPath());
         pathTransition.play();
     }
-}
-
-class ElevatorView{
-    private Rectangle rectangle;
-    private Elevator elevator;
-    private Path path;
-
-    public ElevatorView(Rectangle rectangle, Elevator elevator) {
-        this.rectangle = rectangle;
-        this.elevator = elevator;
-    }
-
-    public ElevatorView() {
-        path = new Path();
-    }
-
-    public Path getPath() {
-        return path;
-    }
-
-    public void setPath(Path path) {
-        this.path = path;
-    }
-
-    public Rectangle getRectangle() {
-        return rectangle;
-    }
-
-    public void setRectangle(Rectangle rectangle) {
-        this.rectangle = rectangle;
-    }
-
-    public Elevator getElevator() {
-        return elevator;
-    }
-
-    public void setElevator(Elevator elevator) {
-        this.elevator = elevator;
-    }
-}
-
-class Elevator{
-
 }
