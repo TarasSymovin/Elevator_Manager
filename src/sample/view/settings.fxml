@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="261.0" prefWidth="503.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.presenter.SettingsController">
+   <children>
+      <Button fx:id="save_button" layoutX="211.0" layoutY="205.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="81.0" text="Save" />
+      <Label layoutX="72.0" layoutY="41.0" text="Number of elevators -" />
+      <Label layoutX="72.0" layoutY="74.0" text="Number of floors -" />
+      <Label layoutX="72.0" layoutY="111.0" text="Speed -" />
+      <Label layoutX="72.0" layoutY="146.0" text="Frequency of passengers -" />
+      <TextField layoutX="197.0" layoutY="37.0" />
+      <TextField layoutX="180.0" layoutY="70.0" />
+      <TextField layoutX="122.0" layoutY="107.0" />
+      <TextField layoutX="219.0" layoutY="142.0" />
+   </children>
+</AnchorPane>

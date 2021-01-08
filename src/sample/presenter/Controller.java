@@ -27,6 +27,9 @@ public class Controller {
     @FXML
     private AnchorPane pane = new AnchorPane();
 
+    @FXML
+    private Button button;
+
     private List<ElevatorView> elevators = new ArrayList<>();
     private int floorCount = 3;
     private int elevatorCount = 3;
