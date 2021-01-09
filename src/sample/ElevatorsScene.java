@@ -12,9 +12,11 @@ import javafx.scene.layout.BackgroundImage;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.TextAlignment;
 import javafx.util.Duration;
+import sample.enums.ElevatorState;
+import sample.imitators.ElevatorsSceneLogicImitator;
 import sample.types.Elevator;
+import sample.types.IElevatorsProgressListener;
 import sample.types.Step;
 import sample.views.ElevatorView;
 
@@ -24,9 +26,9 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class ElevatorsScene {
-    public static final int ELEVATOR_FIRST_FLOOR_MOVE_DURATION = 2000;
-    public static final int ELEVATOR_LAST_FLOOR_MOVE_DURATION = 2000;
-    public static final int ELEVATOR_OTHER_FLOOR_MOVE_DURATION = 2000;
+    public static final int ELEVATOR_FIRST_FLOOR_MOVE_DURATION = 1200;
+    public static final int ELEVATOR_LAST_FLOOR_MOVE_DURATION = 800;
+    public static final int ELEVATOR_OTHER_FLOOR_MOVE_DURATION = 800;
 //    public static final int ELEVATOR_LAST_FLOOR_MOVE_DURATION = 1800;
 //    public static final int ELEVATOR_OTHER_FLOOR_MOVE_DURATION = 1500;
 
@@ -40,7 +42,6 @@ public class ElevatorsScene {
 
     @FXML
     private AnchorPane pane = new AnchorPane();
-
     private Group elements = new Group();
 
     private final Image elevatorImage = new Image("sample/images/elevator_image.png");
@@ -48,13 +49,41 @@ public class ElevatorsScene {
     private final Image backgroundImage = new Image("sample/images/wall_image.jpg");
     private final BackgroundImage background = new BackgroundImage(backgroundImage, null, null, null, null);
 
-    private List<ElevatorView> elevators = new ArrayList<>();
+    private List<ElevatorView> elevatorViews = new ArrayList<>();
     private List<Rectangle> floors = new ArrayList<>();
     private int floorCount = 12;
     private int elevatorCount = 10;
 
+    IElevatorsScene iElevatorsScene;
+    ElevatorsSceneLogicImitator sceneLogicImitator;
+
     @FXML
     void initialize() {
+        iElevatorsScene = new IElevatorsScene() {
+            @Override
+            public void moveToFloor(int elevatorID, int newFloor, boolean isOwnership) {
+                ElevatorView elevatorView = null;
+                for (ElevatorView ev : elevatorViews) {
+                    if (ev.getElevatorID() == elevatorID) {
+                        elevatorView = ev;
+                        break;
+                    }
+                }
+                if (elevatorView != null) {
+                    planElevatorMove(newFloor, elevatorView);
+                    moveElevator(elevatorView, isOwnership);
+                }
+            }
+        };
+
+        // setting up logic imitator
+        sceneLogicImitator = ElevatorsSceneLogicImitator.newInstance(12, 10);
+        sceneLogicImitator.setElevatorScene(iElevatorsScene);
+        sceneLogicImitator.setIsOwnership(true);
+
+        floorCount = sceneLogicImitator.getFloorsCount();
+        elevatorCount = sceneLogicImitator.getElevatorsCount();
+
         initializeElevators();
         initializeFloors();
 
@@ -64,33 +93,14 @@ public class ElevatorsScene {
         pane.setPrefWidth(elevatorCount * ElevatorView.WIDTH + ELEVATOR_LEFT_MARGIN * elevatorCount + ElevatorView.HEIGHT);
         pane.getChildren().addAll(initializeFloorNumber());
 
-        planElevatorMove(2, elevators.get(0));
-        planElevatorMove(1, elevators.get(0));
-        planElevatorMove(2, elevators.get(0));
-
-        planElevatorMove(2, elevators.get(1));
-        planElevatorMove(1, elevators.get(1));
-        planElevatorMove(3, elevators.get(1));
-
-        planElevatorMove(3, elevators.get(2));
-        planElevatorMove(1, elevators.get(2));
-        planElevatorMove(2, elevators.get(2));
-
-        executeElevatorMove(elevators.get(0), false);
-        executeElevatorMove(elevators.get(1), false);
-        executeElevatorMove(elevators.get(2), true);
-
-//        goToFloor(3, elevators.get(2));
-//        goToFloor(1, elevators.get(2));
-//
-//        goToFloor(3, elevators.get(1));
-//        goToFloor(1, elevators.get(1));
+//         starting logic generator
+        sceneLogicImitator.generate();
     }
 
-    public List<Label> initializeFloorNumber(){
+    public List<Label> initializeFloorNumber() {
         List<Label> floorNumbers = new ArrayList<>();
 
-        for (int i = 0; i < floorCount; i++){
+        for (int i = 0; i < floorCount; i++) {
             Label label = new Label(String.valueOf(floorCount - i));
             label.setStyle("-fx-font-size: 52");
             label.setMaxWidth(ElevatorView.HEIGHT);
@@ -107,8 +117,8 @@ public class ElevatorsScene {
         return floorNumbers;
     }
 
-    public void initializeFloors(){
-        for (int i = 0; i < floorCount; i++){
+    public void initializeFloors() {
+        for (int i = 0; i < floorCount; i++) {
             Rectangle rectangle = new Rectangle();
 
             rectangle.setWidth(ElevatorView.HEIGHT);
@@ -129,7 +139,7 @@ public class ElevatorsScene {
     }
 
     public void initializeElevators() {
-        for (int i = 0; i < elevatorCount; i++) {
+        for (int i = 0; sceneLogicImitator.getElevators() != null && i < sceneLogicImitator.getElevators().size(); i++) {
             Rectangle rectangle = new Rectangle();
 
             // setting elevator width and height
@@ -150,42 +160,12 @@ public class ElevatorsScene {
             rectangle.setFill(new ImagePattern(elevatorImage));
 
             ElevatorView elevatorView = new ElevatorView();
-            elevatorView.setElevator(new Elevator(1));
+            elevatorView.setElevatorID(sceneLogicImitator.getElevators().get(i).getId());
             elevatorView.setRectangle(rectangle);
-            elevators.add(elevatorView);
+            elevatorViews.add(elevatorView);
         }
 
-        elevators.forEach(x -> elements.getChildren().add(x.getRectangle()));
-    }
-
-    public void goToFloor(int floor, ElevatorView elevator) {
-        elevator.getPath().getElements().add(new MoveTo(elevator.getRectangle().getX() + elevators.size() * ELEVATOR_LEFT_MARGIN - ELEVATOR_LEFT_MARGIN, elevator.getRectangle().getY() + elevator.getRectangle().getHeight() / 2));
-        elevator.getPath().getElements().add(new LineTo(elevator.getRectangle().getX() + elevators.size() * ELEVATOR_LEFT_MARGIN - ELEVATOR_LEFT_MARGIN, ((floorCount - floor) * elevator.getRectangle().getHeight()) + elevator.getRectangle().getHeight() / 2));
-
-        elevator.getRectangle().setX(elevator.getRectangle().getX());
-        elevator.getRectangle().setY((floorCount - floor) * elevator.getRectangle().getHeight());
-
-        PathTransition pathTransition = new PathTransition();
-
-        pathTransition.setDuration(Duration.millis(5000));
-        pathTransition.setNode(elevator.getRectangle());
-        pathTransition.setPath(elevator.getPath());
-        pathTransition.play();
-    }
-
-    public void moveElevator(int newFloor, ElevatorView elevator) {
-        elevator.getPath().getElements().add(new MoveTo(elevator.getRectangle().getX() + elevators.size() * ELEVATOR_LEFT_MARGIN - ELEVATOR_LEFT_MARGIN, elevator.getRectangle().getY() + elevator.getRectangle().getHeight() / 2));
-        elevator.getPath().getElements().add(new LineTo(elevator.getRectangle().getX() + elevators.size() * ELEVATOR_LEFT_MARGIN - ELEVATOR_LEFT_MARGIN, ((floorCount - newFloor) * elevator.getRectangle().getHeight()) + elevator.getRectangle().getHeight() / 2));
-
-        elevator.getRectangle().setX(elevator.getRectangle().getX());
-        elevator.getRectangle().setY((floorCount - newFloor) * elevator.getRectangle().getHeight());
-
-        PathTransition pathTransition = new PathTransition();
-
-        pathTransition.setDuration(Duration.millis(5000));
-        pathTransition.setNode(elevator.getRectangle());
-        pathTransition.setPath(elevator.getPath());
-        pathTransition.play();
+        elevatorViews.forEach(x -> elements.getChildren().add(x.getRectangle()));
     }
 
     public void planElevatorMove(int newFloor, ElevatorView elevatorView) {
@@ -200,7 +180,9 @@ public class ElevatorsScene {
             double x = elevatorView.getRectangle().getX();
             double y = elevatorView.getRectangle().getY();
 
-            oldFloor = elevatorView.getElevator().getFloor();
+            Elevator elevator = sceneLogicImitator.findElevator(elevatorView.getElevatorID());
+            if (elevator != null)
+                oldFloor = elevator.getFloor();
         }
 
         // TODO: split on strategies
@@ -224,8 +206,7 @@ public class ElevatorsScene {
                 else if (i == difference - 1) {
                     step.setDuration(ELEVATOR_LAST_FLOOR_MOVE_DURATION);
                     step.setIsDestination(true);
-                }
-                else
+                } else
                     step.setDuration(ELEVATOR_OTHER_FLOOR_MOVE_DURATION);
 
                 // calculating step
@@ -251,14 +232,14 @@ public class ElevatorsScene {
         }
     }
 
-    public boolean executeElevatorMove(ElevatorView elevatorView, boolean isOwnership) {
-        if (elevatorView.getSteps().isEmpty())
-            return false;
-
-        Path path = new Path();
-        int duration = 0;
-        Step first = elevatorView.getSteps().get(0);
+    public void moveElevator(ElevatorView elevatorView, boolean isOwnership) {
         if (isOwnership) {
+            if (elevatorView.getSteps().isEmpty())
+                return;
+
+            Path path = new Path();
+            int duration = 0;
+            Step first = elevatorView.getSteps().get(0);
             Step last = elevatorView.getSteps().get(0);
 
             for (int i = 0; i < elevatorView.getSteps().size(); i++) {
@@ -271,47 +252,117 @@ public class ElevatorsScene {
 
             path.getElements().add(new MoveTo(first.getBeg().getX(), first.getBeg().getY()));
             path.getElements().add(new LineTo(last.getEnd().getX(), last.getEnd().getY()));
+
+            PathTransition pathTransition = new PathTransition();
+            pathTransition.setDuration(Duration.millis(duration));
+            pathTransition.setPath(path);
+            pathTransition.setNode(elevatorView.getRectangle());
+
+            pathTransition.setOnFinished(actionEvent -> {
+                Step step = elevatorView.getSteps().get(0);
+
+                int index = elevatorView.getSteps().size();
+
+                while (index > 0) {
+                    step = elevatorView.getSteps().get(0);
+                    elevatorView.getSteps().remove(0);
+                    if (step.isDestination())
+                        break;
+
+                    index--;
+                }
+
+                IElevatorsProgressListener progressListener = sceneLogicImitator.getElevatorsProgressListener();
+                if (progressListener != null) {
+                    progressListener.onElevatorFloorChanged(elevatorView.getElevatorID(), step.getFloor());
+
+                    new java.util.Timer().schedule(
+                            new java.util.TimerTask() {
+                                @Override
+                                public void run() {
+                                    progressListener.onElevatorArrived(elevatorView.getElevatorID());
+                                }
+                            },
+                            20
+                    );
+                }
+            });
+            pathTransition.play();
+
+            // setting rectangle coordinates to match the transition path end coordinates
+            elevatorView.getRectangle().setX(last.getEnd().getX() - elevatorView.getRectangle().getWidth() / 2);
+            elevatorView.getRectangle().setY(last.getEnd().getY() - elevatorView.getRectangle().getHeight() / 2);
+
+            Elevator elevator = sceneLogicImitator.findElevator(elevatorView.getElevatorID());
+            if (elevator != null && elevator.getState() == ElevatorState.WAITING) {
+                IElevatorsProgressListener progressListener = sceneLogicImitator.getElevatorsProgressListener();
+                if (progressListener != null)
+                    progressListener.onElevatorDeparted(elevatorView.getElevatorID());
+            }
+
         } else {
+            if (elevatorView.getSteps().isEmpty())
+                return;
+
+            Path path = new Path();
+            int duration = 0;
+            Step first = elevatorView.getSteps().get(0);
             duration += first.getDuration();
 
             path.getElements().add(new MoveTo(first.getBeg().getX(), first.getBeg().getY()));
             path.getElements().add(new LineTo(first.getEnd().getX(), first.getEnd().getY()));
-        }
 
-        PathTransition pathTransition = new PathTransition();
-        pathTransition.setDuration(Duration.millis(duration));
-        pathTransition.setPath(path);
-        pathTransition.setNode(elevatorView.getRectangle());
 
-        pathTransition.setOnFinished(actionEvent -> {
-            if (elevatorView.getSteps().size() == 0)
-                return;
-
-            Step f = elevatorView.getSteps().get(0);
-            if (isOwnership) {
-                Step l = elevatorView.getSteps().get(0);
-
-                for (int i = 0; i < elevatorView.getSteps().size(); i++) {
-                    l = elevatorView.getSteps().get(0);
-                    elevatorView.getSteps().remove(0);
-
-                    if (l.isDestination())
-                        break;
-                }
-
-                // TODO: notify floor change
-                elevatorView.getElevator().setFloor(l.getFloor());
-            } else {
-                // TODO: notify floor change
-                elevatorView.getElevator().setFloor(f.getFloor());
-                elevatorView.getSteps().remove(0);
+            int stepsToDestination = 0;
+            for (int i = 0; i < elevatorView.getSteps().size(); i++) {
+                stepsToDestination++;
+                if (elevatorView.getSteps().get(i).isDestination())
+                    break;
             }
 
-            executeElevatorMove(elevatorView, isOwnership);
-        });
-        pathTransition.play();
+            if (stepsToDestination > 1) {
+            } else {
+                //  setting rectangle coordinates to match the transition path end coordinates
+                elevatorView.getRectangle().setX(first.getEnd().getX() - elevatorView.getRectangle().getWidth() / 2);
+                elevatorView.getRectangle().setY(first.getEnd().getY() - elevatorView.getRectangle().getHeight() / 2);
+            }
 
-        return true;
+            PathTransition pathTransition = new PathTransition();
+            pathTransition.setDuration(Duration.millis(duration));
+            pathTransition.setPath(path);
+            pathTransition.setNode(elevatorView.getRectangle());
+
+            pathTransition.setOnFinished(actionEvent -> {
+                Step step = elevatorView.getSteps().get(0);
+                IElevatorsProgressListener progressListener = sceneLogicImitator.getElevatorsProgressListener();
+                if (progressListener != null)
+                    progressListener.onElevatorFloorChanged(elevatorView.getElevatorID(), step.getFloor());
+
+                elevatorView.getSteps().remove(0);
+
+                if (!step.isDestination() && elevatorView.getSteps().size() > 0) {
+                    new java.util.Timer().schedule(
+                            new java.util.TimerTask() {
+                                @Override
+                                public void run() {
+                                    moveElevator(elevatorView, false);
+                                }
+                            },
+                            20
+                    );
+                }
+                else if (progressListener != null)
+                    progressListener.onElevatorArrived(elevatorView.getElevatorID());
+            });
+            pathTransition.play();
+
+            Elevator elevator = sceneLogicImitator.findElevator(elevatorView.getElevatorID());
+            if (elevator != null && elevator.getState() == ElevatorState.WAITING) {
+                IElevatorsProgressListener progressListener = sceneLogicImitator.getElevatorsProgressListener();
+                if (progressListener != null)
+                    progressListener.onElevatorDeparted(elevatorView.getElevatorID());
+            }
+        }
     }
 }
 
