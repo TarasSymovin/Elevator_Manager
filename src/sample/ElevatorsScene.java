@@ -50,7 +50,7 @@ public class ElevatorsScene {
 
     private List<ElevatorView> elevators = new ArrayList<>();
     private List<Rectangle> floors = new ArrayList<>();
-    private int floorCount = 20;
+    private int floorCount = 12;
     private int elevatorCount = 10;
 
     @FXML
