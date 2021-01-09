@@ -1,20 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="261.0" prefWidth="503.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.presenter.SettingsController">
+<AnchorPane prefHeight="380.0" prefWidth="502.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.presenter.SettingsController">
    <children>
-      <Button fx:id="save_button" layoutX="211.0" layoutY="205.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="81.0" text="Save" />
-      <Label layoutX="72.0" layoutY="41.0" text="Number of elevators -" />
-      <Label layoutX="72.0" layoutY="74.0" text="Number of floors -" />
-      <Label layoutX="72.0" layoutY="111.0" text="Speed -" />
-      <Label layoutX="72.0" layoutY="146.0" text="Frequency of passengers -" />
-      <TextField layoutX="197.0" layoutY="37.0" />
-      <TextField layoutX="180.0" layoutY="70.0" />
-      <TextField layoutX="122.0" layoutY="107.0" />
-      <TextField layoutX="219.0" layoutY="142.0" />
+      <Button fx:id="save_button" layoutX="187.0" layoutY="304.0" mnemonicParsing="false" prefHeight="37.0" prefWidth="129.0" text="Save">
+         <font>
+            <Font size="16.0" />
+         </font></Button>
+      <Label layoutX="126.0" layoutY="139.0" text="Number of elevators -" />
+      <Label layoutX="141.0" layoutY="172.0" text="Number of floors -" />
+      <Label layoutX="199.0" layoutY="209.0" text="Speed -" />
+      <Label layoutX="103.0" layoutY="244.0" text="Frequency of passengers -" />
+      <TextField layoutX="250.0" layoutY="135.0" />
+      <TextField layoutX="250.0" layoutY="168.0" />
+      <TextField layoutX="249.0" layoutY="205.0" />
+      <ComboBox layoutX="250.0" layoutY="240.0" prefWidth="150.0" />
+      <Label layoutX="113.0" layoutY="32.0" prefHeight="65.0" prefWidth="277.0" text="Elevator Manager">
+         <font>
+            <Font size="35.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>
