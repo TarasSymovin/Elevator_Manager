@@ -51,7 +51,7 @@ public class ElevatorsScene {
 
     private List<ElevatorView> elevatorViews = new ArrayList<>();
     private List<Rectangle> floors = new ArrayList<>();
-    private int floorCount = 12;
+    private int floorCount = 11;
     private int elevatorCount = 10;
 
     IElevatorsScene iElevatorsScene;
