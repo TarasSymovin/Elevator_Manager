@@ -54,6 +54,12 @@ public class ElevatorsScene {
     private int floorCount = 11;
     private int elevatorCount = 10;
 
+    // Data from the main window
+    private int numberOfElevators = 3;
+    private int numberOfFloors = 3;
+    private int numberOfPeople = 10;
+    private int strategy = 2;
+
     IElevatorsScene iElevatorsScene;
     ElevatorsSceneLogicImitator sceneLogicImitator;
 
@@ -363,6 +369,13 @@ public class ElevatorsScene {
                     progressListener.onElevatorDeparted(elevatorView.getElevatorID());
             }
         }
+    }
+
+    public void saveParams(int numberOfElevators, int numberOfFloors, int numberOfPeople, int strategy) {
+        this.numberOfElevators = numberOfElevators;
+        this.numberOfFloors = numberOfFloors;
+        this.numberOfPeople = numberOfPeople;
+        this.strategy = strategy;
     }
 }
 
