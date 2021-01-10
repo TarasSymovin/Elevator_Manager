@@ -2,8 +2,12 @@ package sample;
 
 import javafx.animation.PathTransition;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
@@ -12,6 +16,7 @@ import javafx.scene.layout.BackgroundImage;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 import sample.enums.ElevatorState;
 import sample.imitators.ElevatorsSceneLogicImitator;
@@ -20,6 +25,7 @@ import sample.types.IElevatorsProgressListener;
 import sample.types.Step;
 import sample.views.ElevatorView;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +47,9 @@ public class ElevatorsScene {
     private URL location;
 
     @FXML
+    private Button start_button;
+
+    @FXML
     private AnchorPane pane = new AnchorPane();
     private Group elements = new Group();
 
@@ -51,8 +60,8 @@ public class ElevatorsScene {
 
     private List<ElevatorView> elevatorViews = new ArrayList<>();
     private List<Rectangle> floors = new ArrayList<>();
-    private int floorCount = 11;
-    private int elevatorCount = 10;
+    private int floorCount = 2;
+    private int elevatorCount = 2;
 
     // Data from the main window
     private int numberOfElevators = 3;
@@ -65,6 +74,16 @@ public class ElevatorsScene {
 
     @FXML
     void initialize() {
+
+        start_button.setOnAction(actionEvent -> {
+            start();
+
+            start_button.setVisible(false);
+        });
+
+    }
+
+    public void start(){
         iElevatorsScene = new IElevatorsScene() {
             @Override
             public void moveToFloor(int elevatorID, int newFloor, boolean isOwnership) {
@@ -83,7 +102,7 @@ public class ElevatorsScene {
         };
 
         // setting up logic imitator
-        sceneLogicImitator = ElevatorsSceneLogicImitator.newInstance(12, 10);
+        sceneLogicImitator = ElevatorsSceneLogicImitator.newInstance(floorCount, elevatorCount);
         sceneLogicImitator.setElevatorScene(iElevatorsScene);
         sceneLogicImitator.setIsOwnership(true);
 
@@ -372,8 +391,8 @@ public class ElevatorsScene {
     }
 
     public void saveParams(int numberOfElevators, int numberOfFloors, int numberOfPeople, int strategy) {
-        this.numberOfElevators = numberOfElevators;
-        this.numberOfFloors = numberOfFloors;
+        this.elevatorCount = numberOfElevators;
+        this.floorCount = numberOfFloors;
         this.numberOfPeople = numberOfPeople;
         this.strategy = strategy;
     }
