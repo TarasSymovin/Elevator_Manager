@@ -31,8 +31,8 @@
          <font>
             <Font size="18.0" />
          </font></Label>
-      <TextField fx:id="numberOfElevators" layoutX="302.0" layoutY="262.0" text="3" />
-      <TextField fx:id="numberOfFloors" layoutX="301.0" layoutY="323.0" text="3" />
+      <TextField fx:id="numberOfElevators" layoutX="302.0" layoutY="262.0" text="12" />
+      <TextField fx:id="numberOfFloors" layoutX="301.0" layoutY="323.0" text="12" />
       <ComboBox fx:id="stratery" editable="true" layoutX="301.0" layoutY="429.0" prefWidth="150.0" promptText="1" visibleRowCount="2" />
       <Label layoutX="132.0" layoutY="117.0" prefHeight="65.0" prefWidth="336.0" text="Elevator Manager" textFill="WHITE">
          <font>

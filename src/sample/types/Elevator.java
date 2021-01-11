@@ -1,12 +1,11 @@
 package sample.types;
 
-import sample.ElevatorsScene;
 import sample.enums.ElevatorState;
 
 public class Elevator {
     private int id;
-    private ElevatorState state;
     private int floor;
+    private ElevatorState state;
 
     public Elevator(int id, int floor) {
         this.id = id;

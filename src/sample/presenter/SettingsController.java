@@ -17,7 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import sample.ElevatorsScene;
+import sample.types.ElevatorsScene;
 
 public class SettingsController {
 
@@ -37,7 +37,7 @@ public class SettingsController {
     private TextField numberOfElevators;
 
     @FXML
-    private TextField numberOfFloors;
+    public TextField numberOfFloors;
 
     @FXML
     private ComboBox<Integer> stratery;
@@ -64,7 +64,7 @@ public class SettingsController {
             save_button.getScene().getWindow().hide();
 
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("/sample/view/sample.fxml"));
+            loader.setLocation(getClass().getResource("/sample/views/sample.fxml"));
 
             try {
                 loader.load();
@@ -72,14 +72,14 @@ public class SettingsController {
                 e.printStackTrace();
             }
 
-            ElevatorsScene chilldren =  loader.getController();
+            ElevatorsScene chilldren = loader.getController();
 
             chilldren.saveParams(Integer.parseInt(numberOfElevators.getText()), Integer.parseInt(numberOfFloors.getText()),
                     Integer.parseInt(numberOfPeople.getText()), stratery.getValue());
 
             Parent root = loader.getRoot();
             Stage stage = new Stage();
-            stage.setScene(new Scene(root, 900, 920));
+            stage.setScene(new Scene(root, 600, 600));
             stage.showAndWait();
         });
     }
