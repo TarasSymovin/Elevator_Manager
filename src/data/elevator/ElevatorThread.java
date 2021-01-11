@@ -175,6 +175,8 @@ public class ElevatorThread extends Thread implements Elevator {
         elevator.setOpened(true);
         elevator.removeCalledFloor(floor);
 
+        canMoveFurther = false;
+
         getConsumers().forEach(consumer -> consumer.onElevatorDockedToFloor(this, floor));
 
         getFloorObservable().notifyObservers(floor);
