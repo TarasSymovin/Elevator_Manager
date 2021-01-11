@@ -18,6 +18,7 @@ import sample.enums.ElevatorState;
 import sample.imitators.ElevatorsSceneLogicImitator;
 
 import java.net.URL;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -39,6 +40,7 @@ public class ElevatorsScene implements IElevatorsScene {
     private AnchorPane mPane = new AnchorPane();
     private Group mElements = new Group();
 
+    private final Image mPersonImage = new Image("sample/images/person.png");
     private final Image mElevatorImage = new Image("sample/images/elevator_image.png");
     private final Image mBackgroundFloorImage = new Image("sample/images/floor_background.jpg");
     private final Image mBackgroundImage = new Image("sample/images/wall_image.jpg");
@@ -46,6 +48,8 @@ public class ElevatorsScene implements IElevatorsScene {
 
     private List<ElevatorView> mElevatorViews = new ArrayList<>();
     private List<Rectangle> mFloors = new ArrayList<>();
+    private List<PersonView> mPersonViews = new ArrayList<>();
+
     private int mFloorCount = 10;
     private int mElevatorCount = 1;
 
@@ -83,6 +87,9 @@ public class ElevatorsScene implements IElevatorsScene {
         mPane.setPrefHeight(mFloorCount * ElevatorView.HEIGHT);
         mPane.setPrefWidth(mElevatorCount * ElevatorView.WIDTH + ELEVATOR_LEFT_MARGIN * mElevatorCount + ElevatorView.HEIGHT);
         mPane.getChildren().addAll(initializeFloorNumber());
+
+        spawnPerson(1, 1);
+        movePersonIntoElevator(1, 2);
 
         // starting logic generator
         mSceneLogicImitator.generate();
@@ -435,12 +442,48 @@ public class ElevatorsScene implements IElevatorsScene {
 
     @Override
     public void spawnPerson(int personID, int floor) {
+        Rectangle rectangle = new Rectangle();
+        rectangle.setFill(new ImagePattern(mPersonImage));
 
+        rectangle.setWidth(PersonView.WIDTH);
+        rectangle.setHeight(PersonView.HEIGHT);
+
+        rectangle.setX(0);
+        rectangle.setY((mFloorCount - floor) * PersonView.HEIGHT);
+
+        rectangle.setVisible(false);
+
+        mElements.getChildren().add(rectangle);
+        mPersonViews.add(new PersonView(personID, rectangle));
     }
 
     @Override
     public void movePersonIntoElevator(int personID, int elevatorID) {
+        PersonView personView = mPersonViews.stream()
+                .filter(x -> personID == x.getPersonID())
+                .findAny()
+                .orElse(null);
 
+        if (personView != null){
+            Rectangle rectangle = personView.getRectangle();
+            rectangle.setVisible(true);
+
+            double x = ElevatorView.HEIGHT + elevatorID * ELEVATOR_LEFT_MARGIN + elevatorID * ElevatorView.WIDTH - ElevatorView.WIDTH / 2;
+
+            Path path = new Path();
+            path.getElements().add(new MoveTo(rectangle.getX(), rectangle.getY() + PersonView.HEIGHT / 2));
+            path.getElements().add(new LineTo(x, rectangle.getY() + PersonView.HEIGHT / 2));
+
+            PathTransition pathTransition = new PathTransition();
+            pathTransition.setDuration(Duration.millis(5000));
+            pathTransition.setNode(rectangle);
+            pathTransition.setPath(path);
+            pathTransition.play();
+
+            pathTransition.setOnFinished(e -> {
+                rectangle.setVisible(false);
+            });
+        }
     }
 
     @Override
