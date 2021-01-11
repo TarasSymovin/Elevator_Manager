@@ -4,7 +4,7 @@ public interface IElevatorsScene {
 
     void moveElevatorToFloor(int elevatorID, int newFloor);
 
-    void spawnPerson(int personID, int floor);
-    void movePersonIntoElevator(int personID, int elevatorID);
-    void movePersonFromElevator(int personID, int elevatorID);
+    void spawnPassenger(int personID, int floor);
+    void movePassengerIntoElevator(int personID, int elevatorID);
+    void movePassengerFromElevator(int personID, int elevatorID);
 }

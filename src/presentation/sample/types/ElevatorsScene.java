@@ -26,6 +26,10 @@ public class ElevatorsScene implements IElevatorsScene {
     public static final int ELEVATOR_ONE_FLOOR_MOVE_DURATION = 1000;
     public static final int ELEVATOR_LEFT_MARGIN = 30;
 
+    public static final int FLOOR_WAITING_ZONE_WIDTH = 40;
+
+    public static final int PASSENGER_ONE_ELEVATOR_MOVE_DURATION = 1000;
+
     @FXML
     private ResourceBundle mResources;
 
@@ -39,15 +43,16 @@ public class ElevatorsScene implements IElevatorsScene {
     private AnchorPane mPane = new AnchorPane();
     private Group mElements = new Group();
 
-    private final Image mPersonImage = new Image("presentation/sample/images/person.png");
-    private final Image mElevatorImage = new Image("presentation/sample/images/elevator_image.png");
-    private final Image mBackgroundFloorImage = new Image("presentation/sample/images/floor_background.jpg");
-    private final Image mBackgroundImage = new Image("presentation/sample/images/wall_image.jpg");
+    private final Image mPersonRightHeadedImage = new Image("sample/images/person_headed_right.png");
+    private final Image mPersonLeftHeadedImage = new Image("sample/images/person_headed_left.png");
+    private final Image mElevatorImage = new Image("sample/images/elevator_image.png");
+    private final Image mBackgroundFloorImage = new Image("sample/images/floor_background.jpg");
+    private final Image mBackgroundImage = new Image("sample/images/wall_image.jpg");
     private final BackgroundImage mBackground = new BackgroundImage(mBackgroundImage, null, null, null, null);
 
     private List<ElevatorView> mElevatorViews = new ArrayList<>();
     private List<Rectangle> mFloors = new ArrayList<>();
-    private List<PersonView> mPersonViews = new ArrayList<>();
+    private List<PassengerView> mPassengerViews = new ArrayList<>();
 
     private int mFloorCount = 10;
     private int mElevatorCount = 1;
@@ -84,14 +89,17 @@ public class ElevatorsScene implements IElevatorsScene {
         mPane.getChildren().add(mElements);
         mPane.setBackground(new Background(mBackground));
         mPane.setPrefHeight(mFloorCount * ElevatorView.HEIGHT);
-        mPane.setPrefWidth(mElevatorCount * ElevatorView.WIDTH + ELEVATOR_LEFT_MARGIN * mElevatorCount + ElevatorView.HEIGHT);
+        mPane.setPrefWidth(FLOOR_WAITING_ZONE_WIDTH + mElevatorCount * ElevatorView.WIDTH + ELEVATOR_LEFT_MARGIN * mElevatorCount + ElevatorView.HEIGHT);
         mPane.getChildren().addAll(initializeFloorNumber());
 
-        spawnPerson(1, 1);
-        movePersonIntoElevator(1, 2);
+        spawnPassenger(1, 1);
+        movePassengerFromElevator(1, 4);
+
+//        spawnPassenger(2, 2);
+//        movePassengerFromElevator(1, 4);
 
         // starting logic generator
-        mSceneLogicImitator.generate();
+//        mSceneLogicImitator.generate();
     }
 
     public List<Label> initializeFloorNumber() {
@@ -148,7 +156,7 @@ public class ElevatorsScene implements IElevatorsScene {
             rectangle.setArcWidth(10);
 
             // calculating elevator coordinates with margins
-            double x = i * rectangle.getWidth() + (i + 1) * ELEVATOR_LEFT_MARGIN + ElevatorView.HEIGHT;
+            double x = FLOOR_WAITING_ZONE_WIDTH + i * rectangle.getWidth() + (i + 1) * ELEVATOR_LEFT_MARGIN + ElevatorView.HEIGHT;
             double y = (mFloorCount - 1) * rectangle.getHeight();
 
             rectangle.setX(x);
@@ -165,7 +173,16 @@ public class ElevatorsScene implements IElevatorsScene {
         mElevatorViews.forEach(x -> mElements.getChildren().add(x.getRectangle()));
     }
 
-    public void planElevatorMove(int newFloor, ElevatorView elevatorView) {
+    public void saveParams(int numberOfElevators, int numberOfFloors, int numberOfPeople, int strategy) {
+        this.mElevatorCount = numberOfElevators;
+        this.mFloorCount = numberOfFloors;
+        this.mNumberOfPeople = numberOfPeople;
+        this.mStrategy = strategy;
+    }
+
+
+    // elevator methods
+    private void planElevatorMove(int newFloor, ElevatorView elevatorView) {
         int oldFloor = 1;
         if (elevatorView.getSteps().size() > 0) {
             Step step = elevatorView.getSteps().get(elevatorView.getSteps().size() - 1);
@@ -226,7 +243,7 @@ public class ElevatorsScene implements IElevatorsScene {
         }
     }
 
-    public void moveElevatorStepByStep(int newFloor, ElevatorView elevatorView) {
+    private void moveElevatorStepByStep(int newFloor, ElevatorView elevatorView) {
         Elevator elevator = mSceneLogicImitator.findElevator(elevatorView.getElevatorID());
         if (elevator != null && elevator.getState() != ElevatorState.WAITING && elevator.getFloor() != newFloor) {
             return;
@@ -314,7 +331,7 @@ public class ElevatorsScene implements IElevatorsScene {
         }
     }
 
-    public void moveElevatorToDestination(int newFloor, ElevatorView elevatorView) {
+    private void moveElevatorToDestination(int newFloor, ElevatorView elevatorView) {
         Elevator elevator = mSceneLogicImitator.findElevator(elevatorView.getElevatorID());
         if (elevator != null) {
             if (newFloor == elevator.getFloor())
@@ -416,13 +433,7 @@ public class ElevatorsScene implements IElevatorsScene {
                 progressListener.onElevatorDeparted(elevatorView.getElevatorID());
         }
     }
-
-    public void saveParams(int numberOfElevators, int numberOfFloors, int numberOfPeople, int strategy) {
-        this.mElevatorCount = numberOfElevators;
-        this.mFloorCount = numberOfFloors;
-        this.mNumberOfPeople = numberOfPeople;
-        this.mStrategy = strategy;
-    }
+    // elevator methods
 
     @Override
     public void moveElevatorToFloor(int elevatorID, int newFloor) {
@@ -439,55 +450,187 @@ public class ElevatorsScene implements IElevatorsScene {
         }
     }
 
-    @Override
-    public void spawnPerson(int personID, int floor) {
+    // person methods
+    private double getPassengerSpawnX(int floor) {
+        double x = 0;
+        if (mFloors.size() > floor - 1) {
+            x = mFloors.get(floor - 1).getX() + mFloors.get(floor - 1).getWidth();
+            x += ELEVATOR_LEFT_MARGIN;
+        }
+
+        return x;
+    }
+
+    private void spawnNewPassenger(int passengerID, int floor) {
         Rectangle rectangle = new Rectangle();
-        rectangle.setFill(new ImagePattern(mPersonImage));
+        rectangle.setFill(new ImagePattern(mPersonRightHeadedImage));
 
-        rectangle.setWidth(PersonView.WIDTH);
-        rectangle.setHeight(PersonView.HEIGHT);
+        rectangle.setWidth(PassengerView.WIDTH);
+        rectangle.setHeight(PassengerView.HEIGHT);
 
-        rectangle.setX(0);
-        rectangle.setY((mFloorCount - floor) * PersonView.HEIGHT);
+        double x = getPassengerSpawnX(floor);
+
+        rectangle.setX(x);
+        rectangle.setY((mFloorCount - floor) * PassengerView.HEIGHT);
 
         rectangle.setVisible(false);
 
         mElements.getChildren().add(rectangle);
-        mPersonViews.add(new PersonView(personID, rectangle));
+        PassengerView passengerView = new PassengerView(passengerID, rectangle);
+        mPassengerViews.add(passengerView);
+
+        IPassengerProgressListener passengerProgressListener = mSceneLogicImitator.getIPassengerProgressListener();
+        if (passengerProgressListener != null)
+            passengerProgressListener.onPassengerSpawned(passengerID);
     }
 
-    @Override
-    public void movePersonIntoElevator(int personID, int elevatorID) {
-        PersonView personView = mPersonViews.stream()
-                .filter(x -> personID == x.getPersonID())
+    private void walkPassengerIntoElevator(int passengerID, int elevatorID) {
+        PassengerView passengerView = mPassengerViews.stream()
+                .filter(x -> passengerID == x.getPassengerID())
                 .findAny()
                 .orElse(null);
 
-        if (personView != null){
-            Rectangle rectangle = personView.getRectangle();
-            rectangle.setVisible(true);
+        ElevatorView elevatorView = mElevatorViews.stream()
+                .filter(x -> elevatorID == x.getElevatorID())
+                .findAny()
+                .orElse(null);
 
-            double x = ElevatorView.HEIGHT + elevatorID * ELEVATOR_LEFT_MARGIN + elevatorID * ElevatorView.WIDTH - ElevatorView.WIDTH / 2;
+        if (passengerView == null || elevatorView == null)
+            return;
 
-            Path path = new Path();
-            path.getElements().add(new MoveTo(rectangle.getX(), rectangle.getY() + PersonView.HEIGHT / 2));
-            path.getElements().add(new LineTo(x, rectangle.getY() + PersonView.HEIGHT / 2));
+        Rectangle rectangle = passengerView.getRectangle();
+        rectangle.setVisible(true);
 
-            PathTransition pathTransition = new PathTransition();
-            pathTransition.setDuration(Duration.millis(5000));
-            pathTransition.setNode(rectangle);
-            pathTransition.setPath(path);
-            pathTransition.play();
+        Path path = new Path();
 
-            pathTransition.setOnFinished(e -> {
-                rectangle.setVisible(false);
-            });
+        double x1, y1;
+        x1 = rectangle.getX();
+        y1 = rectangle.getY() + PassengerView.HEIGHT / 2;
+        path.getElements().add(new MoveTo(x1, y1));
+
+        double x2, y2;
+        x2 = elevatorView.getRectangle().getX() + elevatorView.getRectangle().getWidth() / 2;
+        y2 = rectangle.getY() + PassengerView.HEIGHT / 2;
+        path.getElements().add(new LineTo(x2, y2));
+
+        int duration = (int) (Math.abs(x2 - x1) / ElevatorView.WIDTH * PASSENGER_ONE_ELEVATOR_MOVE_DURATION);
+
+        PathTransition pathTransition = new PathTransition();
+        pathTransition.setDuration(Duration.millis(duration));
+        pathTransition.setNode(rectangle);
+        pathTransition.setPath(path);
+
+        pathTransition.setOnFinished(e -> {
+            rectangle.setVisible(false);
+
+            IPassengerProgressListener passengerProgressListener = mSceneLogicImitator.getIPassengerProgressListener();
+            if (passengerProgressListener != null)
+                passengerProgressListener.onPassengerEnteredElevator(passengerID, elevatorID);
+        });
+
+        passengerView.getTransition().getChildren().clear();
+        passengerView.getTransition().getChildren().add(pathTransition);
+        passengerView.getTransition().play();
+    }
+
+    private void walkPassengerFromElevator(int passengerID, int elevatorID) {
+        PassengerView passengerView = mPassengerViews.stream()
+                .filter(x -> passengerID == x.getPassengerID())
+                .findAny()
+                .orElse(null);
+
+
+        ElevatorView elevatorView = mElevatorViews.stream()
+                .filter(x -> elevatorID == x.getElevatorID())
+                .findAny()
+                .orElse(null);
+
+        Elevator elevator = mSceneLogicImitator.findElevator(elevatorID);
+
+        if (passengerView == null || elevatorView == null)
+            return;
+
+        Rectangle rectangle = passengerView.getRectangle();
+        rectangle.setFill(new ImagePattern(mPersonLeftHeadedImage));
+        rectangle.setVisible(true);
+
+        Path path = new Path();
+
+        double x1, y1;
+        x1 = elevatorView.getRectangle().getX() + elevatorView.getRectangle().getWidth() / 2;
+        y1 = elevatorView.getRectangle().getY() + elevatorView.getRectangle().getHeight() - passengerView.getRectangle().getHeight() / 2;
+        path.getElements().add(new MoveTo(x1, y1));
+
+        double x2, y2;
+        x2 = 0;
+        if (elevator != null)
+            x2 = getPassengerSpawnX(elevator.getFloor());
+        y2 = y1;
+        path.getElements().add(new LineTo(x2, y2));
+
+        int duration = (int) (Math.abs(x2 - x1) / ElevatorView.WIDTH * PASSENGER_ONE_ELEVATOR_MOVE_DURATION);
+
+        PathTransition pathTransition = new PathTransition();
+        pathTransition.setDuration(Duration.millis(duration));
+        pathTransition.setNode(rectangle);
+        pathTransition.setPath(path);
+
+        pathTransition.setOnFinished(e -> {
+            rectangle.setVisible(false);
+            mPassengerViews.remove(passengerView);
+
+            IPassengerProgressListener passengerProgressListener = mSceneLogicImitator.getIPassengerProgressListener();
+            if (passengerProgressListener != null) {
+                passengerProgressListener.onPassengerDeleted(passengerID);
+            }
+        });
+
+        passengerView.getTransition().getChildren().clear();
+        passengerView.getTransition().getChildren().add(pathTransition);
+        passengerView.getTransition().play();
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        IPassengerProgressListener passengerProgressListener = mSceneLogicImitator.getIPassengerProgressListener();
+                        if (passengerProgressListener != null) {
+                            passengerProgressListener.onPassengerExitedElevator(passengerID, elevatorID);
+                        }
+                    }
+                },
+                PASSENGER_ONE_ELEVATOR_MOVE_DURATION / 2
+        );
+
+    }
+    // person methods
+
+
+    @Override
+    public void spawnPassenger(int passengerID, int floor) {
+        boolean isThere = false;
+        for (PassengerView pv : mPassengerViews) {
+            if (passengerID == pv.getPassengerID()) {
+                isThere = true;
+                break;
+            }
+        }
+
+        if (isThere) {
+            // TODO: implement some logic
+        } else {
+            spawnNewPassenger(passengerID, floor);
         }
     }
 
     @Override
-    public void movePersonFromElevator(int personID, int elevatorID) {
+    public void movePassengerIntoElevator(int passengerID, int elevatorID) {
+        walkPassengerIntoElevator(passengerID, elevatorID);
+    }
 
+    @Override
+    public void movePassengerFromElevator(int passengerID, int elevatorID) {
+        walkPassengerFromElevator(passengerID, elevatorID);
     }
 }
 
