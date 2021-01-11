@@ -1,5 +1,7 @@
-package sample.views;
+package sample.types;
 
+import javafx.animation.SequentialTransition;
+import javafx.animation.Timeline;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Rectangle;
 import sample.types.Elevator;
@@ -14,12 +16,14 @@ public class ElevatorView {
 
     private int elevatorID;
     private Rectangle rectangle;
-    private Path path;
+
+    private SequentialTransition transition;
+    private Timeline timeline;
 
     private List<Step> steps = new ArrayList<>();
 
     public ElevatorView() {
-        path = new Path();
+
     }
 
     public ElevatorView(Rectangle rectangle) {
@@ -32,14 +36,6 @@ public class ElevatorView {
 
     public void setElevatorID(int elevatorID) {
         this.elevatorID = elevatorID;
-    }
-
-    public Path getPath() {
-        return path;
-    }
-
-    public void setPath(Path path) {
-        this.path = path;
     }
 
     public List<Step> getSteps() {
@@ -62,4 +58,19 @@ public class ElevatorView {
         this.rectangle = rectangle;
     }
 
+    public SequentialTransition getTransition() {
+        return transition;
+    }
+
+    public void setTransition(SequentialTransition transition) {
+        this.transition = transition;
+    }
+
+    public Timeline getTimeline() {
+        return timeline;
+    }
+
+    public void setTimeline(Timeline timeline) {
+        this.timeline = timeline;
+    }
 }

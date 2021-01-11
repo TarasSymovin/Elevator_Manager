@@ -1,13 +1,11 @@
 package sample.imitators;
 
-import sample.IElevatorsScene;
+import sample.types.ElevatorsScene;
 import sample.enums.ElevatorState;
 import sample.types.Elevator;
 import sample.types.IElevatorsProgressListener;
-import sample.views.ElevatorView;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 public class ElevatorsSceneLogicImitator {
     private static int IdCounter = 0;
@@ -28,7 +26,6 @@ public class ElevatorsSceneLogicImitator {
         return mInstance;
     }
 
-    private boolean mIsOwnership;
     private int mFloorsCount;
     private int mElevatorsCount;
 
@@ -37,13 +34,13 @@ public class ElevatorsSceneLogicImitator {
 
     HashMap<Integer, List<Integer>> mElevatorQueues = new HashMap<>();
 
-    IElevatorsScene mElevatorScene;
+    ElevatorsScene mElevatorScene;
 
-    public IElevatorsScene getElevatorScene() {
+    public ElevatorsScene getElevatorScene() {
         return mElevatorScene;
     }
 
-    public void setElevatorScene(IElevatorsScene mElevatorScene) {
+    public void setElevatorScene(ElevatorsScene mElevatorScene) {
         this.mElevatorScene = mElevatorScene;
     }
 
@@ -57,25 +54,12 @@ public class ElevatorsSceneLogicImitator {
     }
 
     public void generate() {
-        RandomMoveGenerationThread moveGenerationThread = new RandomMoveGenerationThread(2000);
+        RandomMoveGenerationThread moveGenerationThread = new RandomMoveGenerationThread(4000);
         moveGenerationThread.start();
 
-//        Elevator elevator = findElevator(0);
-//        List<Integer> queue = mElevatorQueues.get(elevator.getId());
-//
-//        if (queue != null) {
-//            queue.add(3);
-//            queue.add(1);
-//            queue.add(5);
-//            queue.add(2);
-//
-//            if (mElevatorScene != null)
-//                mElevatorScene.moveToFloor(elevator.getId(), 2, mIsOwnership);
-//        }
     }
 
     private ElevatorsSceneLogicImitator(int floorsCount, int elevatorsCount) {
-        this.mIsOwnership = false;
         this.mFloorsCount = floorsCount;
         this.mElevatorsCount = elevatorsCount;
 
@@ -96,7 +80,6 @@ public class ElevatorsSceneLogicImitator {
                     elevator.setState(ElevatorState.MOVING);
                     System.out.println("\n\nElevator with ID = " + id + " has DEPARTED from floor #" + elevator.getFloor());
                 }
-
             }
 
             @Override
@@ -106,21 +89,12 @@ public class ElevatorsSceneLogicImitator {
                     elevator.setState(ElevatorState.WAITING);
                     System.out.println("Elevator with ID = " + id + " has ARRIVED to floor #" + elevator.getFloor());
 
-                    new java.util.Timer().schedule(
-                            new java.util.TimerTask() {
-                                @Override
-                                public void run() {
-                                    List<Integer> queue = mElevatorQueues.get(elevator.getId());
-                                    if (elevator.getState() == ElevatorState.WAITING && mElevatorScene != null && queue != null && !queue.isEmpty()) {
-                                        mElevatorScene.moveToFloor(elevator.getId(), queue.get(0), mIsOwnership);
-                                        queue.remove(0);
-                                    }
-                                }
-                            },
-                            20
-                    );
 
-
+                    List<Integer> queue = mElevatorQueues.get(elevator.getId());
+                    if (elevator.getState() == ElevatorState.WAITING && mElevatorScene != null && queue != null && !queue.isEmpty()) {
+                        mElevatorScene.moveElevatorToFloor(elevator.getId(), queue.get(0));
+                        queue.remove(0);
+                    }
                 }
             }
         };
@@ -128,14 +102,6 @@ public class ElevatorsSceneLogicImitator {
 
     public IElevatorsProgressListener getElevatorsProgressListener() {
         return mElevatorsProgressListener;
-    }
-
-    public boolean isOwnership() {
-        return mIsOwnership;
-    }
-
-    public void setIsOwnership(boolean mIsOwnership) {
-        this.mIsOwnership = mIsOwnership;
     }
 
     public int getFloorsCount() {
@@ -190,10 +156,12 @@ public class ElevatorsSceneLogicImitator {
                     if (elevator != null) {
                         List<Integer> queue = mElevatorQueues.get(elevator.getId());
                         if (queue != null) {
-                            queue.add(random.nextInt(mFloorsCount) + 1);
+                            int newFloor = random.nextInt(mFloorsCount) + 1;
+                            queue.add(newFloor);
 
+                            System.out.println("\tGenerated floor: " + String.valueOf(newFloor));
                             if (elevator.getState() == ElevatorState.WAITING && mElevatorScene != null)
-                                mElevatorScene.moveToFloor(elevator.getId(), queue.get(0), mIsOwnership);
+                                mElevatorScene.moveElevatorToFloor(elevator.getId(), queue.get(0));
 
                             queue.remove(0);
                         }
