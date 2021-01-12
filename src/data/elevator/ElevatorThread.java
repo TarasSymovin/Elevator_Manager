@@ -199,6 +199,9 @@ public class ElevatorThread extends Thread implements Elevator {
 
         Logger.getInstance().log(elevator + " performs movement to floor " + floor);
         moveToNextFloor();
+        synchronized (accessLock) {
+            elevator.setCurrentFloor(floor);
+        }
         Logger.getInstance().log(elevator + " reached floor " + floor);
 
         synchronized (accessLock) {
