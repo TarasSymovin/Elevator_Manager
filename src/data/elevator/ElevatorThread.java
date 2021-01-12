@@ -134,7 +134,7 @@ public class ElevatorThread extends Thread implements Elevator {
 
     @Override
     public boolean isMoving() {
-        synchronized (accessLock) {
+        synchronized (movementLock) {
             return elevator.isMoving();
         }
     }
@@ -176,10 +176,8 @@ public class ElevatorThread extends Thread implements Elevator {
         while (hasWhereToGo) {
             Logger.getInstance().log(elevator + " goes to floor " + floor);
 
-            synchronized (accessLock) {
-                listener.onElevatorMovingToFloor(this, floor);
-                goToFloor(floor);
-            }
+            listener.onElevatorMovingToFloor(this, floor);
+            goToFloor(floor);
 
             waitBeforeMoveFurther();
 
@@ -193,7 +191,9 @@ public class ElevatorThread extends Thread implements Elevator {
     }
 
     private void goToFloor(int floor) {
-        elevator.setOpened(false);
+        synchronized (accessLock) {
+            elevator.setOpened(false);
+        }
 
         Logger.getInstance().log(elevator + " closed the doors at floor " + getCurrentFloor());
 
@@ -201,16 +201,18 @@ public class ElevatorThread extends Thread implements Elevator {
         moveToNextFloor();
         Logger.getInstance().log(elevator + " reached floor " + floor);
 
-        elevator.setOpened(true);
-        elevator.removeCalledFloor(floor);
+        synchronized (accessLock) {
+            elevator.setOpened(true);
+            elevator.removeCalledFloor(floor);
 
-        canMoveFurther = false;
+            canMoveFurther = false;
 
-        getConsumers().forEach(consumer -> consumer.onElevatorDockedToFloor(this, floor));
+            getConsumers().forEach(consumer -> consumer.onElevatorDockedToFloor(this, floor));
 
-        getFloorObservable().notifyObservers(floor);
+            getFloorObservable().notifyObservers(floor);
 
-        Logger.getInstance().log(elevator + " opened doors at floor " + floor);
+            Logger.getInstance().log(elevator + " opened doors at floor " + floor);
+        }
     }
 
 //    private void performMovement(int floor) {
