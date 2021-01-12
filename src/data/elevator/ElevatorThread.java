@@ -141,13 +141,9 @@ public class ElevatorThread extends Thread implements Elevator {
 
     @Override
     public void setIsMoving(boolean isMoving) {
-        synchronized (accessLock) {
-            if (isMoving) {
-                elevator.setIsMoving(false);
-                synchronized (movementLock) {
-                    movementLock.notify();
-                }
-            }
+        synchronized (movementLock) {
+            elevator.setIsMoving(false);
+            movementLock.notify();
         }
     }
 
@@ -198,7 +194,6 @@ public class ElevatorThread extends Thread implements Elevator {
 
     private void goToFloor(int floor) {
         elevator.setOpened(false);
-        elevator.setIsMoving(true);
 
         Logger.getInstance().log(elevator + " closed the doors at floor " + getCurrentFloor());
 
@@ -231,10 +226,13 @@ public class ElevatorThread extends Thread implements Elevator {
 
     private void moveToNextFloor() {
         synchronized (movementLock) {
-            try {
-                movementLock.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            elevator.setIsMoving(true);
+            while (elevator.isMoving()) {
+                try {
+                    movementLock.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
