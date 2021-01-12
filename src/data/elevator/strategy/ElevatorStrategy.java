@@ -1,6 +1,5 @@
 package data.elevator.strategy;
 
-import data.elevator.Elevator;
 import data.elevator.ElevatorControllable;
 
 public interface ElevatorStrategy {

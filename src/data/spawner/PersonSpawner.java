@@ -9,8 +9,7 @@ import java.util.Random;
 
 public class PersonSpawner {
 
-    private static final int DELAY = 10000;
-
+    private final int spawnDelay;
     private final Action<Person> callback;
 
     private final Thread spawnerThread = new Thread(this::infiniteSpawning, "SpawnerThread");
@@ -20,7 +19,8 @@ public class PersonSpawner {
 
     private int counter = 1;
 
-    public PersonSpawner(Action<Person> callback) {
+    public PersonSpawner(int spawnDelay, Action<Person> callback) {
+        this.spawnDelay = spawnDelay;
         this.callback = callback;
     }
 
@@ -44,7 +44,7 @@ public class PersonSpawner {
         synchronized (activeLock) {
             while (isActive) {
                 try {
-                    activeLock.wait(DELAY);
+                    activeLock.wait(spawnDelay);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
