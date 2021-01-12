@@ -51,7 +51,6 @@ public class SettingsController {
     private ImageView image_view;
 
     private final Image backgroundImage = new Image("presentation/sample/images/main_background.jfif");
-
     @FXML
     void initialize() {
         ObservableList<Integer> strategyValue = FXCollections.observableArrayList(1,2);

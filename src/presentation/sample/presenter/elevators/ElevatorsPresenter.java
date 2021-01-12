@@ -1,5 +1,7 @@
 package presentation.sample.presenter.elevators;
 
+import data.elevator.strategy.CallFirstStrategy;
+import data.elevator.strategy.ElevatorStrategy;
 import data.elevator.strategy.PersonArrivalFirstStrategy;
 import data.spawner.PersonThreadCreator;
 import data.building.Building;
@@ -25,11 +27,13 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
         IElevatorsProgressListener, IPassengerProgressListener,
         PersonCallbacks, ElevatorMovementListener {
 
-    private static final float ELEVATOR_WEIGHT = 600f;
-    private static final int ELEVATOR_SIZE = 6;
+    private final float elevatorWeight;
+    private final int elevatorSize;
 
-    private static final int FLOORS_COUNT = 10;
-    private static final int ELEVATORS_COUNT = 4;
+    private final int floorsCounts;
+    private final int elevatorsCount;
+
+    private final int PERSON_SPAWN_RATE = 2000;
 
     private IElevatorsScene view;
 
@@ -39,19 +43,28 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     private final PersonSpawner personSpawner;
 
     public ElevatorsPresenter(ElevatorsSceneArgs args) {
-        // TODO: get args amd apply them
+        this.elevatorWeight = 600f;
+        this.elevatorSize = args.passengersCount;
+        this.floorsCounts = args.floorsCount;
+        this.elevatorsCount = args.elevatorsCount;
 
-        List<BuildingFloor> floors = new FloorsCreator(ELEVATORS_COUNT).create(FLOORS_COUNT);
+        List<BuildingFloor> floors = new FloorsCreator(elevatorsCount).create(floorsCounts);
 
-        List<data.elevator.Elevator> elevators = new ElevatorsCreator(ELEVATOR_WEIGHT, ELEVATOR_SIZE, new PersonArrivalFirstStrategy())
-                .create(ELEVATORS_COUNT);
+        List<data.elevator.Elevator> elevators = new ElevatorsCreator(
+                elevatorWeight,
+                elevatorSize,
+                resolveStrategy(args.strategyNumber)
+        ).create(elevatorsCount);
         Logger.getInstance().log("Elevators created successfully");
 
         Building building = new BuildingImpl(floors, elevators);
 
         this.elevators = Collections.unmodifiableList(parseElevators(elevators));
 
-        personSpawner = new PersonSpawner(person -> startPersonThread(building, person));
+        personSpawner = new PersonSpawner(
+                PERSON_SPAWN_RATE,
+                person -> startPersonThread(building, person)
+        );
         personSpawner.startSpawn();
     }
 
@@ -69,7 +82,7 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     }
 
     @Override
-     public void onElevatorDeparted(int elevatorID) {
+    public void onElevatorDeparted(int elevatorID) {
         Elevator elevator = findElevator(elevatorID);
         if (elevator != null) {
             elevator.setState(ElevatorState.MOVING);
@@ -148,6 +161,16 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
         thread.start();
     }
 
+    private static ElevatorStrategy resolveStrategy(int param) {
+        ElevatorStrategy strategy;
+        if (param == 2) {
+            strategy = new CallFirstStrategy();
+        } else {
+            strategy = new PersonArrivalFirstStrategy();
+        }
+        return strategy;
+    }
+
     private static Passenger parsePassenger(PersonThread person, int id) {
         return new Passenger(id, person.sourceFloor());
     }
@@ -163,15 +186,15 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
 
     // ElevatorScene needs
     public int getFloorsCount() {
-        return FLOORS_COUNT;
+        return floorsCounts;
     }
 
     public int getElevatorsCount() {
-        return ELEVATORS_COUNT;
+        return elevatorsCount;
     }
 
     public Passenger findPassenger(int passengerID) {
-        for (Passenger passenger : passengers){
+        for (Passenger passenger : passengers) {
             if (passenger.getId() == passengerID)
                 return passenger;
         }
@@ -180,7 +203,7 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     }
 
     public Elevator findElevator(int elevatorID) {
-        for (Elevator elevator : elevators){
+        for (Elevator elevator : elevators) {
             if (elevator.getId() == elevatorID)
                 return elevator;
         }
@@ -195,7 +218,6 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     public List<Elevator> getElevators() {
         return elevators;
     }
-
 
 
     // test methods
@@ -218,4 +240,6 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     }
     // test methods
     // ElevatorScene needs
+
+
 }
