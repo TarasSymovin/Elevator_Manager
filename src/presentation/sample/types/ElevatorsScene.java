@@ -63,8 +63,6 @@ public class ElevatorsScene implements IElevatorsScene {
     private int mNumberOfPeople = 10;
     private int mStrategy = 2;
 
-//    ElevatorsSceneLogicImitator mSceneLogicImitator;
-
     ElevatorsPresenter mElevatorsPresenter;
     public void setElevatorsPresenter(ElevatorsPresenter mElevatorsPresenter) {
         this.mElevatorsPresenter = mElevatorsPresenter;
@@ -95,11 +93,11 @@ public class ElevatorsScene implements IElevatorsScene {
 
 
         // test code
-//        List<Elevator> elevators = mElevatorsPresenter.getElevators();
-//        List<Passenger> passengers = mElevatorsPresenter.getPassengers();
-//        for (Elevator e : elevators) {
-//            mElevatorsPresenter.generateElevatorMovementCall(e.getId());
-//        }
+        List<Elevator> elevators = mElevatorsPresenter.getElevators();
+        List<Passenger> passengers = mElevatorsPresenter.getPassengers();
+        for (Elevator e : elevators) {
+            mElevatorsPresenter.generateElevatorMovementCall(e.getId());
+        }
     }
 
     public List<Label> initializeFloorNumber() {

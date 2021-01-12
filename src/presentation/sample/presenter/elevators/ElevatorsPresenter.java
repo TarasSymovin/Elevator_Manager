@@ -38,7 +38,9 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
 
     private final PersonSpawner personSpawner;
 
-    public ElevatorsPresenter() {
+    public ElevatorsPresenter(ElevatorsSceneArgs args) {
+        // TODO: get args amd apply them
+
         List<BuildingFloor> floors = new FloorsCreator(ELEVATORS_COUNT).create(FLOORS_COUNT);
 
         List<data.elevator.Elevator> elevators = new ElevatorsCreator(ELEVATOR_WEIGHT, ELEVATOR_SIZE, new PersonArrivalFirstStrategy())
@@ -195,7 +197,8 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     }
 
 
-        // test methods
+
+    // test methods
     public void generateElevatorMovementCall() {
         if (view == null || elevators.size() == 0)
             return;
@@ -213,8 +216,6 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
         int newFloor = random.nextInt(getFloorsCount()) + 1;
         view.moveElevatorToFloor(elevatorID, newFloor);
     }
-        // test methods
+    // test methods
     // ElevatorScene needs
-
-
 }

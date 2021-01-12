@@ -50,7 +50,7 @@ public class ElevatorsSceneLogicImitator {
 
     public void initialize() {
         for (int i = 0; i < mElevatorsCount; i++) {
-            mElevators.add(new Elevator(ElevatorsIdCounter, 1));
+//            mElevators.add(new Elevator(ElevatorsIdCounter, 1));
             mElevatorQueues.put(ElevatorsIdCounter, new ArrayList<>());
 
             ElevatorsIdCounter++;
