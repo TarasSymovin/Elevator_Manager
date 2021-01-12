@@ -54,7 +54,9 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
                 elevatorWeight,
                 elevatorSize,
                 resolveStrategy(args.strategyNumber)
-        ).create(elevatorsCount);
+        )
+                .withListener(this)
+                .create(elevatorsCount);
         Logger.getInstance().log("Elevators created successfully");
 
         Building building = new BuildingImpl(floors, elevators);
@@ -156,7 +158,9 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     }
 
     private void startPersonThread(Building building, Person person) {
-        PersonThread thread = new PersonThreadCreator(building).create(person);
+        PersonThread thread = new PersonThreadCreator(building)
+                .withCallbacks(this)
+                .create(person);
         passengers.add(parsePassenger(thread, thread.sourceFloor()));
         thread.start();
     }

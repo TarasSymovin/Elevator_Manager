@@ -48,7 +48,7 @@ public class ElevatorThread extends Thread implements Elevator {
         }
     }
 
-    void setListener(ElevatorMovementListener listener) {
+    public void setListener(ElevatorMovementListener listener) {
         if (listener == null) this.listener = EmptyElevatorMovementListener.getInstance();
         else this.listener = listener;
     }
