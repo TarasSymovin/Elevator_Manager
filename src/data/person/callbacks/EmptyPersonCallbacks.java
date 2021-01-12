@@ -16,7 +16,7 @@ public class EmptyPersonCallbacks implements PersonCallbacks {
     }
 
     @Override
-    public void onPersonQueueEntered(Person person, int elevator) {
+    public void onPersonQueueEntered(Person person, int floor, int elevator) {
     }
 
     @Override

@@ -64,6 +64,7 @@ public class ElevatorsScene implements IElevatorsScene {
     private int mStrategy = 2;
 
     ElevatorsPresenter mElevatorsPresenter;
+
     public void setElevatorsPresenter(ElevatorsPresenter mElevatorsPresenter) {
         this.mElevatorsPresenter = mElevatorsPresenter;
     }
@@ -92,12 +93,12 @@ public class ElevatorsScene implements IElevatorsScene {
         mPane.getChildren().addAll(initializeFloorNumber());
 
 
-        // test code
-        List<Elevator> elevators = mElevatorsPresenter.getElevators();
-        List<Passenger> passengers = mElevatorsPresenter.getPassengers();
-        for (Elevator e : elevators) {
-            mElevatorsPresenter.generateElevatorMovementCall(e.getId());
-        }
+//        // test code
+//        List<Elevator> elevators = mElevatorsPresenter.getElevators();
+//        List<Passenger> passengers = mElevatorsPresenter.getPassengers();
+//        for (Elevator e : elevators) {
+//            mElevatorsPresenter.generateElevatorMovementCall(e.getId());
+//        }
     }
 
     public List<Label> initializeFloorNumber() {
@@ -442,15 +443,15 @@ public class ElevatorsScene implements IElevatorsScene {
         }
 
         if (elevatorView != null) {
-            moveElevatorToDestination(newFloor - 1, elevatorView);
+            moveElevatorToDestination(newFloor, elevatorView);
         }
     }
 
     // person methods
     private double getPassengerSpawnX(int floor) {
         double x = 0;
-        if (mFloors.size() > floor - 1) {
-            x = mFloors.get(floor - 1).getX() + mFloors.get(floor - 1).getWidth();
+        if (mFloors.size() > 0) {
+            x = mFloors.get(0).getX() + mFloors.get(0).getWidth();
             x += ELEVATOR_LEFT_MARGIN;
         }
 
@@ -469,7 +470,7 @@ public class ElevatorsScene implements IElevatorsScene {
         rectangle.setX(x);
         rectangle.setY((mFloorCount - floor) * PassengerView.HEIGHT);
 
-        rectangle.setVisible(false);
+        rectangle.setVisible(true);
 
         mElements.getChildren().add(rectangle);
         PassengerView passengerView = new PassengerView(passengerID, rectangle);
@@ -610,7 +611,7 @@ public class ElevatorsScene implements IElevatorsScene {
         if (isThere) {
             // TODO: implement some logic
         } else {
-            spawnNewPassenger(passengerID, floor - 1);
+            spawnNewPassenger(passengerID, floor);
         }
     }
 

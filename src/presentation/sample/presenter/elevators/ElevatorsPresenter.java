@@ -15,6 +15,7 @@ import data.person.callbacks.PersonCallbacks;
 import data.spawner.ElevatorsCreator;
 import data.spawner.FloorsCreator;
 import data.spawner.PersonSpawner;
+import javafx.application.Platform;
 import presentation.sample.enums.ElevatorState;
 import presentation.sample.types.*;
 
@@ -99,16 +100,6 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
             elevator.setState(ElevatorState.WAITING);
         }
 
-        new java.util.Timer().schedule(
-                new java.util.TimerTask() {
-                    @Override
-                    public void run() {
-                        generateElevatorMovementCall(elevatorID);
-                    }
-                },
-                2000
-        );
-
         // TODO notify elevator
 
         // to continue animations
@@ -139,29 +130,38 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
 
     @Override
     public void onElevatorMovingToFloor(data.elevator.Elevator elevator, int floor) {
-        view.moveElevatorToFloor(elevator.getElevatorId(), floor);
+        Platform.runLater(() -> {
+            view.moveElevatorToFloor(elevator.getElevatorId(), floor);
+        });
     }
 
     @Override
     public void onPersonQueueEntered(Person person, int floor, int elevator) {
         // TODO VIEW SIDE!!!!
+        Platform.runLater(() -> {
+            view.spawnPassenger(person.getPersonId(), floor);
+        });
     }
 
     @Override
     public void onPersonElevatorEntered(Person person, data.elevator.Elevator elevator) {
-        view.movePassengerIntoElevator(person.getPersonId(), elevator.getElevatorId());
+        Platform.runLater(() -> {
+            view.movePassengerIntoElevator(person.getPersonId(), elevator.getElevatorId());
+        });
     }
 
     @Override
     public void onPersonElevatorLeft(Person person, data.elevator.Elevator elevator) {
-        view.movePassengerFromElevator(person.getPersonId(), elevator.getElevatorId());
+        Platform.runLater(() -> {
+            view.movePassengerFromElevator(person.getPersonId(), elevator.getElevatorId());
+        });
     }
 
     private void startPersonThread(Building building, Person person) {
         PersonThread thread = new PersonThreadCreator(building)
                 .withCallbacks(this)
                 .create(person);
-        passengers.add(parsePassenger(thread, thread.sourceFloor()));
+        passengers.add(parsePassenger(thread));
         thread.start();
     }
 
@@ -175,8 +175,8 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
         return strategy;
     }
 
-    private static Passenger parsePassenger(PersonThread person, int id) {
-        return new Passenger(id, person.sourceFloor());
+    private static Passenger parsePassenger(PersonThread person) {
+        return new Passenger(person.getPersonId(), person.sourceFloor() + 1);
     }
 
     private static List<Elevator> parseElevators(List<data.elevator.Elevator> elevators) {
