@@ -19,6 +19,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import presentation.sample.presenter.elevators.ElevatorsPresenter;
 import presentation.sample.types.ElevatorsScene;
+import presentation.sample.types.ElevatorsSceneArgs;
 
 public class SettingsController {
 
@@ -50,7 +51,6 @@ public class SettingsController {
     private ImageView image_view;
 
     private final Image backgroundImage = new Image("presentation/sample/images/main_background.jfif");
-
     @FXML
     void initialize() {
         ObservableList<Integer> strategyValue = FXCollections.observableArrayList(1,2);
@@ -74,7 +74,9 @@ public class SettingsController {
             }
 
             ElevatorsScene elevatorsScene = loader.getController();
-            ElevatorsPresenter elevatorsPresenter = new ElevatorsPresenter();
+            ElevatorsPresenter elevatorsPresenter = new ElevatorsPresenter(
+                    new ElevatorsSceneArgs(Integer.parseInt(numberOfFloors.getText()), Integer.parseInt(numberOfElevators.getText()),
+                            stratery.getValue(), Integer.parseInt(numberOfPeople.getText())));
             elevatorsPresenter.setView(elevatorsScene);
 
             elevatorsScene.setElevatorsPresenter(elevatorsPresenter);
