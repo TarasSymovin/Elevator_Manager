@@ -1,10 +1,9 @@
 package data.spawner;
 
-import data.building.Building;
 import data.logger.Logger;
 import data.person.Person;
 import data.person.PersonImpl;
-import data.person.PersonThread;
+import data.utils.Action;
 
 import java.util.Random;
 
@@ -12,7 +11,7 @@ public class PersonSpawner {
 
     private static final int DELAY = 10000;
 
-    private final Building building;
+    private final Action<Person> callback;
 
     private final Thread spawnerThread = new Thread(this::infiniteSpawning, "SpawnerThread");
     private final Object activeLock = new Object();
@@ -21,8 +20,8 @@ public class PersonSpawner {
 
     private int counter = 1;
 
-    public PersonSpawner(Building building) {
-        this.building = building;
+    public PersonSpawner(Action<Person> callback) {
+        this.callback = callback;
     }
 
     public void startSpawn() {
@@ -57,34 +56,14 @@ public class PersonSpawner {
 
     private void executeSpawn() {
         Logger.getInstance().log("Trying to spawn a new person...");
-
         Person person = new PersonImpl(
                 String.valueOf(counter),
                 new Random().nextInt(20) + 60f
         );
-
         counter++;
 
-        int from = randomFloorFrom();
-        int to = randomFloorTo(from);
-        PersonThread personThread = new PersonThread(
-                person,
-                building,
-                from, to
-        );
-        Logger.getInstance().log(person + " spawned. " + from + " -> " + to + "." + "Thread created with name " + personThread.getName());
-        personThread.start();
-    }
+        Logger.getInstance().log(person + " spawned");
 
-    private int randomFloorFrom() {
-        return new Random().nextInt(building.floorsCount());
-    }
-
-    private int randomFloorTo(int from) {
-        int to = new Random().nextInt(building.floorsCount());
-        if (to != from) return to;
-
-        if (to == building.floorsCount() - 1) return to - 1;
-        else return to + 1;
+        callback.call(person);
     }
 }
