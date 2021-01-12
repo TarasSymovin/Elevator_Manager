@@ -27,4 +27,7 @@ public interface Elevator {
     boolean isMoving();
     void setIsMoving(boolean isMoving);
 
+    boolean isMovingUpwards();
+    void setMovingUpwards(boolean movingUpwards);
+
 }
