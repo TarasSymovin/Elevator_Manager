@@ -12,7 +12,6 @@ import java.util.Set;
 
 public class ElevatorThread extends Thread implements Elevator {
 
-    private static final int SPEED = 1000;
     private static final int LEAVE_DELAY = 2000;
 
     private final ElevatorControllable elevator;
@@ -133,6 +132,25 @@ public class ElevatorThread extends Thread implements Elevator {
         return elevator.getConsumersObservable();
     }
 
+    @Override
+    public boolean isMoving() {
+        synchronized (accessLock) {
+            return elevator.isMoving();
+        }
+    }
+
+    @Override
+    public void setIsMoving(boolean isMoving) {
+        synchronized (accessLock) {
+            if (isMoving) {
+                elevator.setIsMoving(false);
+                synchronized (movementLock) {
+                    movementLock.notify();
+                }
+            }
+        }
+    }
+
     private void waitToActivate() {
         synchronized (accessLock) {
             while (!elevator.getMovementStrategy().hasWhereToGo(this)) {
@@ -180,11 +198,12 @@ public class ElevatorThread extends Thread implements Elevator {
 
     private void goToFloor(int floor) {
         elevator.setOpened(false);
+        elevator.setIsMoving(true);
 
         Logger.getInstance().log(elevator + " closed the doors at floor " + getCurrentFloor());
 
         Logger.getInstance().log(elevator + " performs movement to floor " + floor);
-        performMovement(floor);
+        moveToNextFloor();
         Logger.getInstance().log(elevator + " reached floor " + floor);
 
         elevator.setOpened(true);
@@ -199,21 +218,21 @@ public class ElevatorThread extends Thread implements Elevator {
         Logger.getInstance().log(elevator + " opened doors at floor " + floor);
     }
 
-    private void performMovement(int floor) {
-        int distance = floor - elevator.getCurrentFloor();
-        boolean increment = distance < 0;
-        while (distance != 0) {
-            moveToNextFloor();
-            if (increment) distance++;
-            else distance--;
-            elevator.setCurrentFloor(floor - distance);
-        }
-    }
+//    private void performMovement(int floor) {
+//        int distance = floor - elevator.getCurrentFloor();
+//        boolean increment = distance < 0;
+//        while (distance != 0) {
+//            moveToNextFloor();
+//            if (increment) distance++;
+//            else distance--;
+//            elevator.setCurrentFloor(floor - distance);
+//        }
+//    }
 
     private void moveToNextFloor() {
         synchronized (movementLock) {
             try {
-                movementLock.wait(SPEED);
+                movementLock.wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

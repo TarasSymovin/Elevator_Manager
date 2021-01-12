@@ -24,4 +24,7 @@ public interface Elevator {
 
     Observable<List<ElevatorConsumer>> getConsumersObservable();
 
+    boolean isMoving();
+    void setIsMoving(boolean isMoving);
+
 }

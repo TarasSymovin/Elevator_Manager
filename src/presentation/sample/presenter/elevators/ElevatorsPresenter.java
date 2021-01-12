@@ -77,6 +77,7 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     public void onElevatorArrived(int elevatorID) {
         Elevator elevator = findElevator(elevatorID);
         if (elevator != null) {
+            elevator.getElevator().setIsMoving(false);
             elevator.setState(ElevatorState.WAITING);
         }
 
@@ -151,7 +152,7 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     private static List<Elevator> parseElevators(List<data.elevator.Elevator> elevators) {
         List<Elevator> parsedElevators = new ArrayList<>();
         for (int i = 0; i < elevators.size(); i++) {
-            Elevator elevator = new Elevator(i, 0);
+            Elevator elevator = new Elevator(i, 0, elevators.get(i));
             parsedElevators.add(elevator);
         }
         return parsedElevators;
