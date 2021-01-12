@@ -12,6 +12,7 @@ import data.person.callbacks.PersonCallbacks;
 import data.spawner.ElevatorsCreator;
 import data.spawner.FloorsCreator;
 import data.spawner.PersonSpawner;
+import presentation.sample.enums.ElevatorState;
 import presentation.sample.types.*;
 
 import java.util.ArrayList;
@@ -57,19 +58,39 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
 
     @Override
     public void onElevatorFloorChanged(int elevatorID, int newFloor) {
+        Elevator elevator = findElevator(elevatorID);
+        if (elevator != null) {
+            elevator.setFloor(newFloor);
+        }
     }
 
     @Override
      public void onElevatorDeparted(int elevatorID) {
+        Elevator elevator = findElevator(elevatorID);
+        if (elevator != null) {
+            elevator.setState(ElevatorState.MOVING);
+        }
     }
 
     @Override
     public void onElevatorArrived(int elevatorID) {
+        Elevator elevator = findElevator(elevatorID);
+        if (elevator != null) {
+            elevator.setState(ElevatorState.WAITING);
+        }
+
         // TODO notify elevator
+
+        // to continue animations
+        // call move elevator
+        // or
+        // call move passenger into elevator
+        // call move passenger from elevator
     }
 
     @Override
     public void onPassengerSpawned(int passengerID) {
+
     }
 
     @Override
@@ -125,4 +146,37 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
         return parsedElevators;
     }
 
+    public int getFloorsCount() {
+        return FLOORS_COUNT;
+    }
+
+    public int getElevatorsCount() {
+        return ELEVATORS_COUNT;
+    }
+
+    public Passenger findPassenger(int passengerID) {
+        for (Passenger passenger : passengers){
+            if (passenger.getId() == passengerID)
+                return passenger;
+        }
+
+        return null;
+    }
+
+    public Elevator findElevator(int elevatorID) {
+        for (Elevator elevator : elevators){
+            if (elevator.getId() == elevatorID)
+                return elevator;
+        }
+
+        return null;
+    }
+
+    public List<Passenger> getPassengers() {
+        return passengers;
+    }
+
+    public List<Elevator> getElevators() {
+        return elevators;
+    }
 }

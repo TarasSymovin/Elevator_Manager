@@ -17,6 +17,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import presentation.sample.presenter.elevators.ElevatorsPresenter;
 import presentation.sample.types.ElevatorsScene;
 
 public class SettingsController {
@@ -72,9 +73,14 @@ public class SettingsController {
                 e.printStackTrace();
             }
 
-            ElevatorsScene chilldren = loader.getController();
+            ElevatorsScene elevatorsScene = loader.getController();
+            ElevatorsPresenter elevatorsPresenter = new ElevatorsPresenter();
+            elevatorsPresenter.setView(elevatorsScene);
 
-            chilldren.saveParams(Integer.parseInt(numberOfElevators.getText()), Integer.parseInt(numberOfFloors.getText()),
+            elevatorsScene.setElevatorsPresenter(elevatorsPresenter);
+
+
+            elevatorsScene.saveParams(Integer.parseInt(numberOfElevators.getText()), Integer.parseInt(numberOfFloors.getText()),
                     Integer.parseInt(numberOfPeople.getText()), stratery.getValue());
 
             Parent root = loader.getRoot();
