@@ -5,7 +5,7 @@ import data.person.Person;
 
 public interface PersonCallbacks {
 
-    void onPersonQueueEntered(Person person, int elevator);
+    void onPersonQueueEntered(Person person, int floor, int elevator);
 
     void onPersonElevatorEntered(Person person, Elevator elevator);
 
