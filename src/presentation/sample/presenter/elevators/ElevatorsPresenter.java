@@ -1,5 +1,6 @@
 package presentation.sample.presenter.elevators;
 
+import data.elevator.strategy.PersonArrivalFirstStrategy;
 import data.spawner.PersonThreadCreator;
 import data.building.Building;
 import data.building.BuildingFloor;
@@ -40,7 +41,7 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     public ElevatorsPresenter() {
         List<BuildingFloor> floors = new FloorsCreator(ELEVATORS_COUNT).create(FLOORS_COUNT);
 
-        List<data.elevator.Elevator> elevators = new ElevatorsCreator(ELEVATOR_WEIGHT, ELEVATOR_SIZE)
+        List<data.elevator.Elevator> elevators = new ElevatorsCreator(ELEVATOR_WEIGHT, ELEVATOR_SIZE, new PersonArrivalFirstStrategy())
                 .create(ELEVATORS_COUNT);
         Logger.getInstance().log("Elevators created successfully");
 
