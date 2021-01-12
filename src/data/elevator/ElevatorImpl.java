@@ -23,6 +23,10 @@ public class ElevatorImpl implements ElevatorControllable {
 
     private boolean isOpened = true;
 
+    private boolean isMoving = false;
+
+    private boolean isMovingUpwards = false;
+
     private final Set<Integer> calledFloors = new TreeSet<>();
 
     private final List<ElevatorConsumer> consumers = new ArrayList<>();
@@ -117,6 +121,26 @@ public class ElevatorImpl implements ElevatorControllable {
     @Override
     public Observable<List<ElevatorConsumer>> getConsumersObservable() {
         return consumersObservable;
+    }
+
+    @Override
+    public boolean isMoving() {
+        return isMoving;
+    }
+
+    @Override
+    public void setIsMoving(boolean isMoving) {
+        this.isMoving = isMoving;
+    }
+
+    @Override
+    public boolean isMovingUpwards() {
+        return isMovingUpwards;
+    }
+
+    @Override
+    public void setMovingUpwards(boolean movingUpwards) {
+        this.isMovingUpwards = movingUpwards;
     }
 
     @Override
