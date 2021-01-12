@@ -4,7 +4,7 @@ import data.elevator.Elevator;
 import data.elevator.ElevatorControllable;
 import data.elevator.ElevatorImpl;
 import data.elevator.ElevatorThread;
-import data.elevator.strategy.DumbElevatorStrategy;
+import data.elevator.strategy.ElevatorStrategy;
 import data.logger.Logger;
 
 import java.util.ArrayList;
@@ -14,10 +14,12 @@ public class ElevatorsCreator {
 
     private final float maxWeight;
     private final int maxSize;
+    private final ElevatorStrategy strategy;
 
-    public ElevatorsCreator(float maxWeight, int maxSize) {
+    public ElevatorsCreator(float maxWeight, int maxSize, ElevatorStrategy strategy) {
         this.maxWeight = maxWeight;
         this.maxSize = maxSize;
+        this.strategy = strategy;
     }
 
     public List<Elevator> create(int count) {
@@ -40,7 +42,7 @@ public class ElevatorsCreator {
                 String.valueOf(index),
                 maxWeight,
                 maxSize,
-                new DumbElevatorStrategy()
+                strategy
         );
     }
 
