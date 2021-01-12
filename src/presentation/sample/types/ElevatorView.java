@@ -14,8 +14,8 @@ public class ElevatorView {
     private int elevatorID;
     private Rectangle rectangle;
 
-    private SequentialTransition transition;
-    private Timeline timeline;
+    private SequentialTransition transition = new SequentialTransition();
+    private Timeline timeline = new Timeline();
 
     private List<Step> steps = new ArrayList<>();
 

@@ -81,11 +81,6 @@ public class ElevatorsScene implements IElevatorsScene {
     }
 
     public void start() {
-
-        List<Elevator> elevators = mElevatorsPresenter.getElevators();
-        List<Passenger> passengers = mElevatorsPresenter.getPassengers();
-
-
         mFloorCount = mElevatorsPresenter.getFloorsCount();
         mElevatorCount = mElevatorsPresenter.getElevatorsCount();
 
@@ -99,27 +94,12 @@ public class ElevatorsScene implements IElevatorsScene {
         mPane.getChildren().addAll(initializeFloorNumber());
 
 
-//        // setting up logic imitator
-//        mSceneLogicImitator = ElevatorsSceneLogicImitator.newInstance(mFloorCount, mElevatorCount);
-//        mSceneLogicImitator.setElevatorScene(this);
-//
-//        mFloorCount = mSceneLogicImitator.getFloorsCount();
-//        mElevatorCount = mSceneLogicImitator.getElevatorsCount();
-//
-//        initializeElevators();
-//        initializeFloors();
-//
-//        mPane.getChildren().add(mElements);
-//        mPane.setBackground(new Background(mBackground));
-//        mPane.setPrefHeight(mFloorCount * ElevatorView.HEIGHT);
-//        mPane.setPrefWidth(FLOOR_WAITING_ZONE_WIDTH + mElevatorCount * ElevatorView.WIDTH + ELEVATOR_LEFT_MARGIN * mElevatorCount + ElevatorView.HEIGHT);
-//        mPane.getChildren().addAll(initializeFloorNumber());
-//
-////        spawnPassenger(2, 2);
-////        movePassengerFromElevator(1, 4);
-//
-//        // starting logic generator
-////        mSceneLogicImitator.generate();
+        // test code
+//        List<Elevator> elevators = mElevatorsPresenter.getElevators();
+//        List<Passenger> passengers = mElevatorsPresenter.getPassengers();
+//        for (Elevator e : elevators) {
+//            mElevatorsPresenter.generateElevatorMovementCall(e.getId());
+//        }
     }
 
     public List<Label> initializeFloorNumber() {
@@ -199,7 +179,6 @@ public class ElevatorsScene implements IElevatorsScene {
         this.mNumberOfPeople = numberOfPeople;
         this.mStrategy = strategy;
     }
-
 
     // elevator methods
     private void planElevatorMove(int newFloor, ElevatorView elevatorView) {
@@ -376,10 +355,13 @@ public class ElevatorsScene implements IElevatorsScene {
                         elevatorView.getSteps().remove(i);
                     }
 
-                    if (elevator.getState() == ElevatorState.MOVING)
+                    if (elevatorView.getTimeline().getStatus() == Animation.Status.RUNNING)
                         return;
                 }
             } else {
+                if (elevatorView.getTimeline().getStatus() == Animation.Status.RUNNING)
+                    return;
+
                 planElevatorMove(newFloor, elevatorView);
             }
         }
@@ -462,7 +444,7 @@ public class ElevatorsScene implements IElevatorsScene {
         }
 
         if (elevatorView != null) {
-            moveElevatorToDestination(newFloor, elevatorView);
+            moveElevatorToDestination(newFloor - 1, elevatorView);
         }
     }
 
@@ -617,7 +599,6 @@ public class ElevatorsScene implements IElevatorsScene {
     }
     // person methods
 
-
     @Override
     public void spawnPassenger(int passengerID, int floor) {
         boolean isThere = false;
@@ -631,7 +612,7 @@ public class ElevatorsScene implements IElevatorsScene {
         if (isThere) {
             // TODO: implement some logic
         } else {
-            spawnNewPassenger(passengerID, floor);
+            spawnNewPassenger(passengerID, floor - 1);
         }
     }
 

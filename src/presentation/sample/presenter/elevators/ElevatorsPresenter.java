@@ -18,6 +18,7 @@ import presentation.sample.types.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class ElevatorsPresenter implements IElevatorsPresenter,
         IElevatorsProgressListener, IPassengerProgressListener,
@@ -78,6 +79,16 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
         if (elevator != null) {
             elevator.setState(ElevatorState.WAITING);
         }
+
+        new java.util.Timer().schedule(
+                new java.util.TimerTask() {
+                    @Override
+                    public void run() {
+                        generateElevatorMovementCall(elevatorID);
+                    }
+                },
+                2000
+        );
 
         // TODO notify elevator
 
@@ -146,6 +157,7 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
         return parsedElevators;
     }
 
+    // ElevatorScene needs
     public int getFloorsCount() {
         return FLOORS_COUNT;
     }
@@ -179,4 +191,28 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     public List<Elevator> getElevators() {
         return elevators;
     }
+
+
+        // test methods
+    public void generateElevatorMovementCall() {
+        if (view == null || elevators.size() == 0)
+            return;
+        Random random = new Random();
+        int index = random.nextInt(getElevatorsCount());
+        int newFloor = random.nextInt(getFloorsCount()) + 1;
+
+        view.moveElevatorToFloor(elevators.get(index).getId(), newFloor);
+    }
+
+    public void generateElevatorMovementCall(int elevatorID) {
+        if (view == null || elevators.size() == 0)
+            return;
+        Random random = new Random();
+        int newFloor = random.nextInt(getFloorsCount()) + 1;
+        view.moveElevatorToFloor(elevatorID, newFloor);
+    }
+        // test methods
+    // ElevatorScene needs
+
+
 }

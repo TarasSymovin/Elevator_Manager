@@ -1,5 +1,6 @@
 package presentation.sample.types;
 
+import javafx.animation.SequentialTransition;
 import javafx.scene.shape.Rectangle;
 
 public class PersonView {
@@ -8,6 +9,7 @@ public class PersonView {
 
     private int personID;
     private Rectangle rectangle;
+    private SequentialTransition transition = new SequentialTransition();
 
     public PersonView(int personID, Rectangle rectangle) {
         this.personID = personID;
@@ -28,5 +30,13 @@ public class PersonView {
 
     public void setRectangle(Rectangle rectangle) {
         this.rectangle = rectangle;
+    }
+
+    public SequentialTransition getTransition() {
+        return transition;
+    }
+
+    public void setTransition(SequentialTransition transition) {
+        this.transition = transition;
     }
 }
