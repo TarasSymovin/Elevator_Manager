@@ -4,6 +4,7 @@ import data.elevator.Elevator;
 import data.elevator.ElevatorControllable;
 import data.elevator.ElevatorImpl;
 import data.elevator.ElevatorThread;
+import data.elevator.listener.ElevatorMovementListener;
 import data.elevator.strategy.ElevatorStrategy;
 import data.logger.Logger;
 
@@ -16,10 +17,17 @@ public class ElevatorsCreator {
     private final int maxSize;
     private final ElevatorStrategy strategy;
 
+    private ElevatorMovementListener listener;
+
     public ElevatorsCreator(float maxWeight, int maxSize, ElevatorStrategy strategy) {
         this.maxWeight = maxWeight;
         this.maxSize = maxSize;
         this.strategy = strategy;
+    }
+
+    public ElevatorsCreator withListener(ElevatorMovementListener listener) {
+        this.listener = listener;
+        return this;
     }
 
     public List<Elevator> create(int count) {
@@ -30,6 +38,7 @@ public class ElevatorsCreator {
             Logger.getInstance().log(elevator + " created. Index: " + i);
 
             ElevatorThread elevatorThread = new ElevatorThread(elevator);
+            elevatorThread.setListener(listener);
             elevators.add(elevatorThread);
             elevatorThread.start();
         }
