@@ -71,6 +71,11 @@ public class PersonThread extends Thread implements Person, BuildingConsumer {
     }
 
     @Override
+    public int getPersonId() {
+        return person.getPersonId();
+    }
+
+    @Override
     public String getPersonName() {
         return person.getPersonName();
     }

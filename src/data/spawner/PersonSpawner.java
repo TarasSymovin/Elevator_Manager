@@ -57,6 +57,7 @@ public class PersonSpawner {
     private void executeSpawn() {
         Logger.getInstance().log("Trying to spawn a new person...");
         Person person = new PersonImpl(
+                counter,
                 String.valueOf(counter),
                 new Random().nextInt(20) + 60f
         );

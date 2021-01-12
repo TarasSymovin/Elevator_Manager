@@ -36,6 +36,7 @@ public class ElevatorsCreator {
 
     private ElevatorImpl createSingle(int index) {
         return new ElevatorImpl(
+                index,
                 String.valueOf(index),
                 maxWeight,
                 maxSize,

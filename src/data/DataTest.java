@@ -4,20 +4,13 @@ import data.building.Building;
 import data.building.BuildingFloor;
 import data.building.BuildingImpl;
 import data.elevator.Elevator;
-import data.elevator.ElevatorControllable;
-import data.elevator.ElevatorImpl;
-import data.elevator.ElevatorThread;
-import data.elevator.strategy.DumbElevatorStrategy;
-import data.floor.FloorImpl;
 import data.logger.Logger;
 import data.person.Person;
-import data.person.PersonThread;
 import data.spawner.ElevatorsCreator;
 import data.spawner.FloorsCreator;
 import data.spawner.PersonSpawner;
-import presentation.sample.presenter.elevators.PersonThreadCreator;
+import data.spawner.PersonThreadCreator;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DataTest {

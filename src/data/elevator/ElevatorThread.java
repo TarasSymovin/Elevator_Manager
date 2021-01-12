@@ -55,6 +55,11 @@ public class ElevatorThread extends Thread implements Elevator {
     }
 
     @Override
+    public int getElevatorId() {
+        return elevator.getElevatorId();
+    }
+
+    @Override
     public int getCurrentFloor() {
         synchronized (accessLock) {
             return elevator.getCurrentFloor();

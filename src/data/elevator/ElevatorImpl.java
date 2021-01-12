@@ -8,6 +8,8 @@ import java.util.*;
 
 public class ElevatorImpl implements ElevatorControllable {
 
+    private final int id;
+
     private final String name;
 
     private final float maxWeight;
@@ -27,21 +29,22 @@ public class ElevatorImpl implements ElevatorControllable {
 
     private final Observable<List<ElevatorConsumer>> consumersObservable = new SimpleObservable<>();
 
-    public ElevatorImpl(String name, float maxWeight, int maxSize, ElevatorStrategy strategy) {
-        this(name, maxWeight, maxSize, strategy, 1);
+    public ElevatorImpl(int id, String name, float maxWeight, int maxSize, ElevatorStrategy strategy) {
+        this(id, name, maxWeight, maxSize, strategy, 1);
     }
 
-    public ElevatorImpl(String name, float maxWeight, int maxSize, ElevatorStrategy strategy, int currentFloor) {
+    public ElevatorImpl(int id, String name, float maxWeight, int maxSize, ElevatorStrategy strategy, int initialFloor) {
+        this.id = id;
         this.name = name;
         this.maxWeight = maxWeight;
         this.maxSize = maxSize;
         this.movementStrategy = strategy;
-        this.currentFloor = currentFloor;
+        this.currentFloor = initialFloor;
     }
 
     @Override
-    public ElevatorStrategy getMovementStrategy() {
-        return movementStrategy;
+    public int getElevatorId() {
+        return id;
     }
 
     @Override
@@ -57,6 +60,11 @@ public class ElevatorImpl implements ElevatorControllable {
     @Override
     public Observable<Integer> getFloorObservable() {
         return floorObservable;
+    }
+
+    @Override
+    public ElevatorStrategy getMovementStrategy() {
+        return movementStrategy;
     }
 
     @Override

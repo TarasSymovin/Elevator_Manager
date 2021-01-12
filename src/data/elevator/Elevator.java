@@ -7,6 +7,8 @@ import java.util.Set;
 
 public interface Elevator {
 
+    int getElevatorId();
+
     int getCurrentFloor();
     Observable<Integer> getFloorObservable();
 

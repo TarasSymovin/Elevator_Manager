@@ -2,13 +2,21 @@ package data.person;
 
 public class PersonImpl implements Person {
 
+    private final int id;
+
     private final String name;
 
     private final float weight;
 
-    public PersonImpl(String name, float weight) {
+    public PersonImpl(int id, String name, float weight) {
+        this.id = id;
         this.name = name;
         this.weight = weight;
+    }
+
+    @Override
+    public int getPersonId() {
+        return id;
     }
 
     @Override
