@@ -18,28 +18,10 @@ public class PersonArrivalFirstStrategy implements ElevatorStrategy {
 
     @Override
     public int resolveFloorToGo(ElevatorControllable elevator) {
+        StrategyUtils.validateElevatorDirection(elevator);
         if (elevator.isMovingUpwards()) {
-            boolean hasHigherTargetFloors = elevator.getConsumers().stream()
-                    .anyMatch(consumer -> consumer.destinationFloor() > elevator.getCurrentFloor());
-            boolean hasHigherCalledFloors = elevator.getCalledFloors().stream()
-                    .anyMatch(floor -> floor > elevator.getCurrentFloor());
-
-            if (!hasHigherTargetFloors && !hasHigherCalledFloors) {
-                elevator.setMovingUpwards(false);
-                return resolveLowerFloor(elevator);
-            }
             return resolveHigherFloor(elevator);
-
         } else {
-            boolean hasLowerTargetFloors = elevator.getConsumers().stream()
-                    .anyMatch(consumer -> consumer.destinationFloor() < elevator.getCurrentFloor());
-            boolean hasLowerCalledFloors = elevator.getCalledFloors().stream()
-                    .anyMatch(floor -> floor < elevator.getCurrentFloor());
-
-            if (!hasLowerTargetFloors && !hasLowerCalledFloors) {
-                elevator.setMovingUpwards(true);
-                return resolveHigherFloor(elevator);
-            }
             return resolveLowerFloor(elevator);
         }
     }
