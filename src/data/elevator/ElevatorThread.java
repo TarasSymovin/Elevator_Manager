@@ -153,7 +153,7 @@ public class ElevatorThread extends Thread implements Elevator {
 
     private void waitToActivate() {
         synchronized (accessLock) {
-            while (!elevator.getMovementStrategy().hasWhereToGo(this)) {
+            while (!elevator.getMovementStrategy().hasWhereToGo(elevator)) {
                 isWaitingForTask = true;
                 try {
                     accessLock.wait();
