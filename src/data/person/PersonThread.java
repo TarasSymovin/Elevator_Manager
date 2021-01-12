@@ -53,7 +53,7 @@ public class PersonThread extends Thread implements Person, BuildingConsumer {
         building.enterQueue(this);
         Logger.getInstance().log(person + " entered queue " + elevatorIndex);
 
-        callbacks.onPersonQueueEntered(this, elevatorIndex);
+        callbacks.onPersonQueueEntered(this, sourceFloor, elevatorIndex);
 
         do {
             waitForReachingElevator();

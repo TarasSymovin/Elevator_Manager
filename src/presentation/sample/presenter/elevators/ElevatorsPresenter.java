@@ -141,7 +141,7 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     }
 
     @Override
-    public void onPersonQueueEntered(Person person, int elevator) {
+    public void onPersonQueueEntered(Person person, int floor, int elevator) {
         // TODO VIEW SIDE!!!!
     }
 
