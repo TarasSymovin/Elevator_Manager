@@ -1,6 +1,8 @@
 package data.elevator;
 
 
+import data.elevator.listener.ElevatorMovementListener;
+import data.elevator.listener.EmptyElevatorMovementListener;
 import data.elevator.strategy.ElevatorStrategy;
 import data.logger.Logger;
 import data.utils.observable.Observable;
@@ -14,6 +16,8 @@ public class ElevatorThread extends Thread implements Elevator {
     private static final int LEAVE_DELAY = 2000;
 
     private final ElevatorControllable elevator;
+
+    private ElevatorMovementListener listener = EmptyElevatorMovementListener.getInstance();
 
     private final Object accessLock = new Object();
     private final Object movementLock = new Object();
@@ -43,6 +47,11 @@ public class ElevatorThread extends Thread implements Elevator {
 
             executeOrders();
         }
+    }
+
+    void setListener(ElevatorMovementListener listener) {
+        if (listener == null) this.listener = EmptyElevatorMovementListener.getInstance();
+        else this.listener = listener;
     }
 
     @Override
@@ -149,6 +158,7 @@ public class ElevatorThread extends Thread implements Elevator {
             Logger.getInstance().log(elevator + " goes to floor " + floor);
 
             synchronized (accessLock) {
+                listener.onElevatorMovingToFloor(this, floor);
                 goToFloor(floor);
             }
 

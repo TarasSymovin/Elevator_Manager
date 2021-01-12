@@ -4,6 +4,8 @@ import data.building.Building;
 import data.building.BuildingConsumer;
 import data.elevator.Elevator;
 import data.logger.Logger;
+import data.person.callbacks.EmptyPersonCallbacks;
+import data.person.callbacks.PersonCallbacks;
 
 import java.util.List;
 import java.util.Random;
@@ -18,10 +20,13 @@ public class PersonThread extends Thread implements Person, BuildingConsumer {
     private final int sourceFloor;
     private final int targetFloor;
 
+    private PersonCallbacks callbacks = EmptyPersonCallbacks.getInstance();
+
     private int elevatorIndex = NO_INDEX;
 
     private final Object queueLock = new Object();
     private final Object elevatorLock = new Object();
+
     private boolean reachedQueueHead = false;
     private boolean reachedDestination = false;
 
@@ -30,6 +35,11 @@ public class PersonThread extends Thread implements Person, BuildingConsumer {
         this.building = building;
         this.sourceFloor = sourceFloor;
         this.targetFloor = targetFloor;
+    }
+
+    public void setCallbacks(PersonCallbacks callbacks) {
+        if (callbacks == null) this.callbacks = EmptyPersonCallbacks.getInstance();
+        else this.callbacks = callbacks;
     }
 
     @Override
@@ -42,6 +52,8 @@ public class PersonThread extends Thread implements Person, BuildingConsumer {
 
         building.enterQueue(this);
         Logger.getInstance().log(person + " entered queue " + elevatorIndex);
+
+        callbacks.onPersonQueueEntered(this, elevatorIndex);
 
         do {
             waitForReachingElevator();
@@ -93,9 +105,15 @@ public class PersonThread extends Thread implements Person, BuildingConsumer {
     }
 
     @Override
+    public void onMovedFromQueueToElevator(Elevator elevator) {
+        callbacks.onPersonElevatorEntered(this, elevator);
+    }
+
+    @Override
     public void onElevatorDockedToFloor(Elevator elevator, int floor) {
         if (floor == targetFloor) {
             handleReachedTargetFloor();
+            callbacks.onPersonElevatorLeft(this, elevator);
         }
     }
 
