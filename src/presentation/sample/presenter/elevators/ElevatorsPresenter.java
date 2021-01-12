@@ -12,15 +12,15 @@ import data.person.callbacks.PersonCallbacks;
 import data.spawner.ElevatorsCreator;
 import data.spawner.FloorsCreator;
 import data.spawner.PersonSpawner;
-import presentation.sample.types.Elevator;
-import presentation.sample.types.IElevatorsScene;
-import presentation.sample.types.Passenger;
+import presentation.sample.types.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ElevatorsPresenter implements IElevatorsPresenter, PersonCallbacks, ElevatorMovementListener {
+public class ElevatorsPresenter implements IElevatorsPresenter,
+        IElevatorsProgressListener, IPassengerProgressListener,
+        PersonCallbacks, ElevatorMovementListener {
 
     private static final float ELEVATOR_WEIGHT = 600f;
     private static final int ELEVATOR_SIZE = 6;
@@ -56,13 +56,44 @@ public class ElevatorsPresenter implements IElevatorsPresenter, PersonCallbacks,
     }
 
     @Override
+    public void onElevatorFloorChanged(int elevatorID, int newFloor) {
+    }
+
+    @Override
+     public void onElevatorDeparted(int elevatorID) {
+    }
+
+    @Override
+    public void onElevatorArrived(int elevatorID) {
+        // TODO notify elevator
+    }
+
+    @Override
+    public void onPassengerSpawned(int passengerID) {
+    }
+
+    @Override
+    public void onPassengerEnteredElevator(int passengerID, int elevatorID) {
+        // TODO find elevator and reset delayed move timer
+    }
+
+    @Override
+    public void onPassengerExitedElevator(int passengerID, int elevatorID) {
+        // TODO find elevator and reset delayed move timer
+    }
+
+    @Override
+    public void onPassengerDeleted(int passengerID) {
+    }
+
+    @Override
     public void onElevatorMovingToFloor(data.elevator.Elevator elevator, int floor) {
         view.moveElevatorToFloor(elevator.getElevatorId(), floor);
     }
 
     @Override
     public void onPersonQueueEntered(Person person, int elevator) {
-        // TODO
+        // TODO VIEW SIDE!!!!
     }
 
     @Override
