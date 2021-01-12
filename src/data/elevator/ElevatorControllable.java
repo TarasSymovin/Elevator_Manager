@@ -12,4 +12,6 @@ public interface ElevatorControllable extends Elevator {
 
     void setOpened(boolean isOpened);
 
+    boolean isMovingUpwards();
+    void setMovingUpwards(boolean movingUpwards);
 }

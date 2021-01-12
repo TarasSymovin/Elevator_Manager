@@ -1,16 +1,16 @@
 package data.elevator.strategy;
 
-import data.elevator.Elevator;
+import data.elevator.ElevatorControllable;
 
 public class DumbElevatorStrategy implements ElevatorStrategy {
 
     @Override
-    public boolean hasWhereToGo(Elevator elevator) {
+    public boolean hasWhereToGo(ElevatorControllable elevator) {
         return !elevator.getConsumers().isEmpty() || !elevator.getCalledFloors().isEmpty();
     }
 
     @Override
-    public int resolveFloorToGo(Elevator elevator) {
+    public int resolveFloorToGo(ElevatorControllable elevator) {
         if (!hasWhereToGo(elevator)) throw new IllegalStateException(
                 "Cannot resolve elevator floor to go because there are no consumers and no called floors"
         );
