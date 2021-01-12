@@ -80,7 +80,7 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     public void onElevatorFloorChanged(int elevatorID, int newFloor) {
         Elevator elevator = findElevator(elevatorID);
         if (elevator != null) {
-            elevator.setFloor(newFloor);
+            elevator.setFloor(newFloor + 1);
         }
     }
 
@@ -131,15 +131,14 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     @Override
     public void onElevatorMovingToFloor(data.elevator.Elevator elevator, int floor) {
         Platform.runLater(() -> {
-            view.moveElevatorToFloor(elevator.getElevatorId(), floor);
+            view.moveElevatorToFloor(elevator.getElevatorId(), floor + 1);
         });
     }
 
     @Override
     public void onPersonQueueEntered(Person person, int floor, int elevator) {
-        // TODO VIEW SIDE!!!!
         Platform.runLater(() -> {
-            view.spawnPassenger(person.getPersonId(), floor);
+            view.spawnPassenger(person.getPersonId(), floor + 1);
         });
     }
 
@@ -182,7 +181,8 @@ public class ElevatorsPresenter implements IElevatorsPresenter,
     private static List<Elevator> parseElevators(List<data.elevator.Elevator> elevators) {
         List<Elevator> parsedElevators = new ArrayList<>();
         for (int i = 0; i < elevators.size(); i++) {
-            Elevator elevator = new Elevator(i, 0, elevators.get(i));
+            data.elevator.Elevator elevatorData = elevators.get(i);
+            Elevator elevator = new Elevator(i, elevatorData.getCurrentFloor() + 1, elevators.get(i));
             parsedElevators.add(elevator);
         }
         return parsedElevators;

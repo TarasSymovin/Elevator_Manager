@@ -34,7 +34,7 @@ public class ElevatorImpl implements ElevatorControllable {
     private final Observable<List<ElevatorConsumer>> consumersObservable = new SimpleObservable<>();
 
     public ElevatorImpl(int id, String name, float maxWeight, int maxSize, ElevatorStrategy strategy) {
-        this(id, name, maxWeight, maxSize, strategy, 1);
+        this(id, name, maxWeight, maxSize, strategy, 0);
     }
 
     public ElevatorImpl(int id, String name, float maxWeight, int maxSize, ElevatorStrategy strategy, int initialFloor) {
