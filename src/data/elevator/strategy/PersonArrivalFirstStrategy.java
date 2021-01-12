@@ -4,8 +4,10 @@ import data.elevator.Elevator;
 import data.elevator.ElevatorConsumer;
 import data.elevator.ElevatorControllable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class PersonArrivalFirstStrategy implements ElevatorStrategy {
 
@@ -43,29 +45,35 @@ public class PersonArrivalFirstStrategy implements ElevatorStrategy {
     }
 
     private int resolveHigherFloor(Elevator elevator) {
-        return resolveFloor(elevator, floor -> floor > elevator.getCurrentFloor());
+        return resolveFloors(elevator, floor -> floor > elevator.getCurrentFloor())
+                .stream()
+                .min(Integer::compareTo)
+                .get();
     }
 
     private int resolveLowerFloor(Elevator elevator) {
-        return resolveFloor(elevator, floor -> floor < elevator.getCurrentFloor());
+        return resolveFloors(elevator, floor -> floor < elevator.getCurrentFloor())
+                .stream()
+                .max(Integer::compareTo)
+                .get();
     }
 
-    private int resolveFloor(Elevator elevator, Predicate<Integer> floorComparator) {
-        Optional<Integer> closestDestinationFloor = elevator.getConsumers().stream()
+    private List<Integer> resolveFloors(Elevator elevator, Predicate<Integer> floorComparator) {
+        List<Integer> destinationFloors = elevator.getConsumers().stream()
                 .map(ElevatorConsumer::destinationFloor)
                 .filter(floorComparator)
-                .min(Integer::compareTo);
+                .collect(Collectors.toList());
 
-        if (closestDestinationFloor.isPresent()) {
-            return closestDestinationFloor.get();
+        if (!destinationFloors.isEmpty()) {
+            return destinationFloors;
         }
 
-        Optional<Integer> closestCalledFloor = elevator.getCalledFloors().stream()
+        List<Integer> closestCalledFloors = elevator.getCalledFloors().stream()
                 .filter(floorComparator)
-                .min(Integer::compareTo);
+                .collect(Collectors.toList());
 
-        if (closestCalledFloor.isPresent()) {
-            return closestCalledFloor.get();
+        if (!closestCalledFloors.isEmpty()) {
+            return closestCalledFloors;
         }
 
         throw new IllegalStateException("Stub");
