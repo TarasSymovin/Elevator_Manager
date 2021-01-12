@@ -86,8 +86,11 @@ public class BuildingImpl implements Building {
     @Override
     public boolean enterElevator(BuildingConsumer consumer) {
         Floor floor = floors.get(consumer.sourceFloor());
-        floor.leaveQueue(consumer);
-        return elevators.get(consumer.elevatorIndex()).enter(consumer);
+        if (elevators.get(consumer.elevatorIndex()).enter(consumer)) {
+            floor.leaveQueue(consumer);
+            return true;
+        }
+        return false;
     }
 
     @Override
