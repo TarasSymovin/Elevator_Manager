@@ -31,14 +31,14 @@
          <font>
             <Font size="18.0" />
          </font></Label>
-      <TextField fx:id="numberOfElevators" layoutX="302.0" layoutY="262.0" text="12" />
-      <TextField fx:id="numberOfFloors" layoutX="301.0" layoutY="323.0" text="12" />
+      <TextField fx:id="numberOfElevators" layoutX="302.0" layoutY="262.0" text="6" />
+      <TextField fx:id="numberOfFloors" layoutX="301.0" layoutY="323.0" text="8" />
       <ComboBox fx:id="stratery" editable="true" layoutX="301.0" layoutY="429.0" prefWidth="150.0" promptText="1" visibleRowCount="2" />
       <Label layoutX="132.0" layoutY="117.0" prefHeight="65.0" prefWidth="336.0" text="Elevator Manager" textFill="WHITE">
          <font>
             <Font size="42.0" />
          </font>
       </Label>
-      <TextField fx:id="numberOfPeople" layoutX="302.0" layoutY="373.0" text="9" />
+      <TextField fx:id="numberOfPeople" layoutX="302.0" layoutY="373.0" text="10" />
    </children>
 </AnchorPane>

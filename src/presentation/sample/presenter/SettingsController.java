@@ -2,8 +2,11 @@ package presentation.sample.presenter;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.acl.Owner;
 import java.util.ResourceBundle;
 
+import andriichello.strategies.OwnershipElevatorStrategy;
+import andriichello.types.ElevatorSceneImitator;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -20,6 +23,7 @@ import javafx.stage.Stage;
 import presentation.sample.presenter.elevators.ElevatorsPresenter;
 import presentation.sample.types.ElevatorsScene;
 import presentation.sample.types.ElevatorsSceneArgs;
+import presentation.sample.types.IElevatorsScene;
 
 public class SettingsController {
 
@@ -65,7 +69,7 @@ public class SettingsController {
             save_button.getScene().getWindow().hide();
 
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("/presentation/sample/views/sample.fxml"));
+            loader.setLocation(getClass().getResource("/andriichello/views/sample.fxml"));
 
             try {
                 loader.load();
@@ -73,17 +77,34 @@ public class SettingsController {
                 e.printStackTrace();
             }
 
-            ElevatorsScene elevatorsScene = loader.getController();
-            ElevatorsPresenter elevatorsPresenter = new ElevatorsPresenter(
-                    new ElevatorsSceneArgs(Integer.parseInt(numberOfFloors.getText()), Integer.parseInt(numberOfElevators.getText()),
-                            stratery.getValue(), Integer.parseInt(numberOfPeople.getText())));
-            elevatorsPresenter.setView(elevatorsScene);
+//            ElevatorsScene elevatorsScene = loader.getController();
+//            ElevatorsPresenter elevatorsPresenter = new ElevatorsPresenter(
+//                    new ElevatorsSceneArgs(Integer.parseInt(numberOfFloors.getText()), Integer.parseInt(numberOfElevators.getText()),
+//                            stratery.getValue(), Integer.parseInt(numberOfPeople.getText())));
+//            elevatorsPresenter.setView(elevatorsScene);
+//            elevatorsScene.setElevatorsPresenter(elevatorsPresenter);
+//            elevatorsScene.saveParams(Integer.parseInt(numberOfElevators.getText()), Integer.parseInt(numberOfFloors.getText()),
+//                    Integer.parseInt(numberOfPeople.getText()), stratery.getValue());
 
-            elevatorsScene.setElevatorsPresenter(elevatorsPresenter);
+
+            andriichello.scenes.ElevatorsSceneArgs args = new andriichello.scenes.ElevatorsSceneArgs();
+            args.setFloorsCount(Integer.parseInt(numberOfFloors.getText()));
+            args.setElevatorsCount(Integer.parseInt(numberOfElevators.getText()));
+            args.setMaxPassengersCount(Integer.parseInt(numberOfPeople.getText()));
+            args.setPassengersSpawnRate(1000);
+            args.setPassengersSpawnAmount(3);
+
+            if (stratery.getValue() == 1) {
+                args.setElevatorStrategy(new OwnershipElevatorStrategy());
+            } else {
+                // TODO: create another strategy
+                args.setElevatorStrategy(new OwnershipElevatorStrategy());
+            }
 
 
-            elevatorsScene.saveParams(Integer.parseInt(numberOfElevators.getText()), Integer.parseInt(numberOfFloors.getText()),
-                    Integer.parseInt(numberOfPeople.getText()), stratery.getValue());
+            andriichello.scenes.ElevatorsScene scene = loader.getController();
+            andriichello.types.ElevatorSceneImitator imitator = new ElevatorSceneImitator(args, scene);
+            scene.setElevatorsSceneImitator(imitator);
 
             Parent root = loader.getRoot();
             Stage stage = new Stage();
