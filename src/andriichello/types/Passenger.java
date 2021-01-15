@@ -45,4 +45,14 @@ public class Passenger {
     public void setState(PassengerState mState) {
         this.mState = mState;
     }
+
+    @Override
+    public String toString() {
+        return "Passenger{" +
+                "id: " + mID + ", " +
+                "departure: " + mDepartureFloor + ", " +
+                "destination: " + mDestinationFloor + ", " +
+                "state: " + mState.name() +
+                " }";
+    }
 }

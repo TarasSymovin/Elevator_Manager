@@ -11,7 +11,7 @@ public class ElevatorsSceneArgs {
     private int mMaxPassengersCount = 4;
     private int mPassengersSpawnRate = 3000;
     private int mPassengersSpawnAmount = 1;
-    private int mPassengersInitialCount = 3;
+    private int mPassengersInitialCount = 0;
 
     private IElevatorChoosingStrategy mElevatorChoosingStrategy = new SimpleElevatorChoosingStrategy();
     private IElevatorStrategy mElevatorStrategy = new OwnershipElevatorStrategy();

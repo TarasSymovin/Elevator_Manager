@@ -88,7 +88,7 @@ public class ElevatorsScene implements IElevatorsScene {
         mPane.setPrefWidth(FLOOR_WAITING_ZONE_WIDTH + mArgs.getElevatorsCount() * ElevatorView.WIDTH + ELEVATOR_LEFT_MARGIN * mArgs.getElevatorsCount() + ElevatorView.HEIGHT);
         mPane.getChildren().addAll(initializeFloorNumber());
 
-        mImitator.start(3000);
+        mImitator.start(1000);
     }
 
     public List<Label> initializeFloorNumber() {
@@ -177,7 +177,7 @@ public class ElevatorsScene implements IElevatorsScene {
 
             Elevator elevator = mImitator.findElevator(elevatorView.getElevatorID());
             if (elevator != null)
-                oldFloor = elevator.getDestinationFloor();
+                oldFloor = elevator.getCurrentFloor();
         }
 
         // TODO: split on strategies
@@ -313,7 +313,7 @@ public class ElevatorsScene implements IElevatorsScene {
     private void moveElevatorToDestination(int newFloor, ElevatorView elevatorView) {
         Elevator elevator = mImitator.findElevator(elevatorView.getElevatorID());
         if (elevator != null) {
-            if (newFloor == elevator.getDestinationFloor())
+            if (newFloor == elevator.getDepartureFloor())
                 return;
 
             if (elevatorView.getSteps().size() > 0) {

@@ -150,4 +150,15 @@ public class Elevator {
 
         return null;
     }
+
+    @Override
+    public String toString() {
+        return "Elevator{" +
+                "id: " + mID + ", " +
+                "departure: " + mDepartureFloor + ", " +
+                "current: " + mCurrentFloor + ", " +
+                "destination: " + mDestinationFloor + ", " +
+                "state: " + mState.name() +
+                " }";
+    }
 }

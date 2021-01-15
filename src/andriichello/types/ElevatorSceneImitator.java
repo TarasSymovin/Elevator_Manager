@@ -23,8 +23,6 @@ public class ElevatorSceneImitator implements ElevatorsProgressListener, Passeng
     private static int ELEVATOR_ID_COUNTER = 0;
     private static int PASSENGER_ID_COUNTER = 0;
 
-    private IElevatorStrategy mElevatorStrategy = new OwnershipElevatorStrategy();
-    private IElevatorChoosingStrategy mElevatorChoosingStrategy = new SimpleElevatorChoosingStrategy();
 
     private List<Elevator> mElevators = new ArrayList<>();
     private List<Passenger> mPassengers = new ArrayList<>();
@@ -53,23 +51,39 @@ public class ElevatorSceneImitator implements ElevatorsProgressListener, Passeng
             Elevator elevator = new Elevator(ELEVATOR_ID_COUNTER++);
             elevator.setFloors(1);
             elevator.setState(ElevatorState.waiting);
-            elevator.setStrategy(mElevatorStrategy);
+            elevator.setStrategy(mArgs.getElevatorStrategy());
 
             mElevators.add(elevator);
         }
 
-        for (int i = 0; i < mArgs.getPassengersInitialCount(); i++) {
-            spawn();
-        }
+
     }
 
     private Timer mTimer = new Timer();
 
     public void start(int delay) {
+        if (mArgs.getPassengersInitialCount() > 0) {
+            for (int i = 0; i < mArgs.getPassengersInitialCount(); i++) {
+                Passenger passenger = spawn();
+            }
+            force();
+        }
+
         mTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                spawn();
+                for (int i = 0; i < mArgs.getPassengersSpawnAmount(); i++) {
+                    Passenger passenger = spawn();
+                    if (passenger == null)
+                        continue;
+
+                    for (Elevator elevator : mElevators) {
+                        if (elevator.getWaitingPassengers().contains(passenger)) {
+                            force(elevator);
+                            break;
+                        }
+                    }
+                }
             }
         }, delay, mArgs.getPassengersSpawnRate());
     }
@@ -78,23 +92,23 @@ public class ElevatorSceneImitator implements ElevatorsProgressListener, Passeng
         mTimer.cancel();
     }
 
-    public void spawn() {
-        if (mArgs.getMaxPassengersCount() <= mPassengers.size() || mElevatorChoosingStrategy == null)
-            return;
+    public Passenger spawn() {
+        if (mArgs.getMaxPassengersCount() <= mPassengers.size() || mArgs == null || mArgs.getElevatorStrategy() == null)
+            return null;
 
         Random r = new Random();
 
         int departure = r.nextInt(mArgs.getFloorsCount()) + 1;
         int destination = r.nextInt(mArgs.getFloorsCount()) + 1;
         if (departure == destination)
-            return;
+            return null;
 
         Passenger passenger = new Passenger(PASSENGER_ID_COUNTER++);
         passenger.setDepartureFloor(departure);
         passenger.setDestinationFloor(destination);
 
         try {
-            Elevator elevator = mElevatorChoosingStrategy.chooseElevator(mElevators, passenger);
+            Elevator elevator = mArgs.getElevatorChoosingStrategy().chooseElevator(mElevators, passenger);
             if (elevator != null && elevator.appendToWaitingPassengers(passenger)) {
                 mPassengers.add(passenger);
                 if (mElevatorsScene != null)
@@ -102,11 +116,13 @@ public class ElevatorSceneImitator implements ElevatorsProgressListener, Passeng
                         mElevatorsScene.spawnPassenger(passenger.getID(), passenger.getDepartureFloor());
                     });
 
-                force(elevator);
+                System.out.println("Spawned: " + passenger.toString());
+                return passenger;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public void force() {
@@ -131,6 +147,7 @@ public class ElevatorSceneImitator implements ElevatorsProgressListener, Passeng
                         if (passenger.getState() == PassengerState.waiting) {
                             Platform.runLater(() -> {
                                 mElevatorsScene.movePassengerIntoElevator(passenger.getID(), elevator.getID());
+                                System.out.println("Move passenger into: " + passenger.toString() + ", " + elevator.toString());
                             });
                             shouldWait = true;
                         }
@@ -145,6 +162,7 @@ public class ElevatorSceneImitator implements ElevatorsProgressListener, Passeng
                         if (passenger.getState() == PassengerState.waiting) {
                             Platform.runLater(() -> {
                                 mElevatorsScene.movePassengerFromElevator(passenger.getID(), elevator.getID());
+                                System.out.println("Move passenger from: " + passenger.toString() + ", " + elevator.toString());
                             });
                             shouldWait = true;
                         }
@@ -155,10 +173,26 @@ public class ElevatorSceneImitator implements ElevatorsProgressListener, Passeng
             // elevator needs to be moved
             if (!shouldWait) {
                 Integer next = elevator.nextFloor();
-                if (next != null)
+                if (next != null && elevator.getDestinationFloor() != next) {
+                    elevator.setDestinationFloor(next);
                     Platform.runLater(() -> {
                         mElevatorsScene.moveElevatorToFloor(elevator.getID(), next);
+                        System.out.println("Move elevator: " + elevator.toString());
                     });
+                }
+            }
+        } else {
+            Integer next = elevator.nextFloor();
+            if (next != null && elevator.getDestinationFloor() != next) {
+                if (elevator.getWaitingPassengersCount() > 0 && elevator.getMovingPassengersCount() > 0) {
+                    System.out.println("line");
+                }
+
+                elevator.setDestinationFloor(next);
+                Platform.runLater(() -> {
+                    mElevatorsScene.moveElevatorToFloor(elevator.getID(), next);
+                    System.out.println("Move elevator: " + elevator.toString());
+                });
             }
         }
     }
@@ -213,8 +247,10 @@ public class ElevatorSceneImitator implements ElevatorsProgressListener, Passeng
 
     @Override
     public void onElevatorFloorChanged(int elevatorID, int newFloor) {
-        mElevators.stream().filter(e -> e.getID() == elevatorID).findFirst()
-                .ifPresent(elevator -> elevator.setCurrentFloor(newFloor));
+        Elevator elevator = findElevator(elevatorID);
+        if (elevator != null) {
+            elevator.setCurrentFloor(newFloor);
+        }
     }
 
     @Override

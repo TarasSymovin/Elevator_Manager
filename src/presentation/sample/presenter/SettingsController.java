@@ -2,9 +2,9 @@ package presentation.sample.presenter;
 
 import java.io.IOException;
 import java.net.URL;
-import java.security.acl.Owner;
 import java.util.ResourceBundle;
 
+import andriichello.strategies.InterruptionElevatorStrategy;
 import andriichello.strategies.OwnershipElevatorStrategy;
 import andriichello.types.ElevatorSceneImitator;
 import javafx.collections.FXCollections;
@@ -46,7 +46,7 @@ public class SettingsController {
     public TextField numberOfFloors;
 
     @FXML
-    private ComboBox<Integer> stratery;
+    private ComboBox<String> stratery;
 
     @FXML
     private TextField numberOfPeople;
@@ -57,9 +57,9 @@ public class SettingsController {
     private final Image backgroundImage = new Image("presentation/sample/images/main_background.jfif");
     @FXML
     void initialize() {
-        ObservableList<Integer> strategyValue = FXCollections.observableArrayList(1,2);
+        ObservableList<String> strategyValue = FXCollections.observableArrayList(String.valueOf(1), String.valueOf(2));
         stratery.setItems(strategyValue);
-        stratery.setValue(1);
+        stratery.setValue(strategyValue.get(0));
 
         image_view.setImage(backgroundImage);
         image_view.setFitHeight(anchorPane.getHeight());
@@ -86,19 +86,19 @@ public class SettingsController {
 //            elevatorsScene.saveParams(Integer.parseInt(numberOfElevators.getText()), Integer.parseInt(numberOfFloors.getText()),
 //                    Integer.parseInt(numberOfPeople.getText()), stratery.getValue());
 
-
             andriichello.scenes.ElevatorsSceneArgs args = new andriichello.scenes.ElevatorsSceneArgs();
             args.setFloorsCount(Integer.parseInt(numberOfFloors.getText()));
             args.setElevatorsCount(Integer.parseInt(numberOfElevators.getText()));
             args.setMaxPassengersCount(Integer.parseInt(numberOfPeople.getText()));
-            args.setPassengersSpawnRate(1000);
-            args.setPassengersSpawnAmount(3);
+            args.setPassengersInitialCount(3);
+            args.setPassengersSpawnRate(3000);
+            args.setPassengersSpawnAmount(2);
 
-            if (stratery.getValue() == 1) {
+            if (Integer.parseInt(stratery.getValue()) == 1) {
+//                args.setElevatorStrategy(new InterruptionElevatorStrategy());
                 args.setElevatorStrategy(new OwnershipElevatorStrategy());
             } else {
-                // TODO: create another strategy
-                args.setElevatorStrategy(new OwnershipElevatorStrategy());
+                args.setElevatorStrategy(new InterruptionElevatorStrategy());
             }
 
 
@@ -112,4 +112,5 @@ public class SettingsController {
             stage.show();
         });
     }
+
 }
